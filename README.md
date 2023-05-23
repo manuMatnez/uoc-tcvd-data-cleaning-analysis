@@ -2,7 +2,7 @@
 
 ## TODO
 
-## Autor
+## Autores
 
 **Vanessa Moreno González** y **Manuel Ernesto Martínez Martín**
 
