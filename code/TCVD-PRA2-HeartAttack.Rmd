@@ -1,0 +1,99 @@
+---
+title: 'UOC - Tipologia y ciclo de vida de los datos - PRA2'
+subtitle: 'Limpieza y Preprocesado: Heart Attack Analysis & Prediction Dataset'
+author: 'Vanessa Moreno González, Manuel Ernesto Martínez Martín'
+date: '`r format(Sys.Date(),"%e de %B %Y")`'
+lang: es-ES
+fontsize: 10pt
+output:
+  html_document:
+    highlight: default
+    number_sections: yes
+    theme: cosmo
+    toc: yes
+    toc_depth: 2
+  word_document: default
+  pdf_document:
+    highlight: default
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_libraries, include=FALSE}
+# Librerias
+```
+
+# Descripción del dataset
+
+FIXME
+
+***
+
+# Integración y selección
+
+FIXME
+
+***
+
+# Limpieza de los datos
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# FIXME
+```
+
+FIXME
+
+## ¿Los datos contienen ceros o elementos vacíos?
+
+FIXME
+
+## Identifica y gestiona los valores extremos
+
+FIXME
+
+***
+
+# Análisis de los datos
+
+FIXME
+
+## Selección de los grupos de datos que se quieren analizar/comparar
+
+FIXME
+
+## Comprobación de la normalidad y homogeneidad de la varianza
+
+FIXME
+
+## Aplicación de pruebas estadísticas para comparar los grupos de datos
+
+FIXME
+
+***
+
+# Representación de los resultados
+
+FIXME
+
+***
+
+# Resolución del problema
+
+FIXME
+
+***
+
+# Código
+
+FIXME
+
+***
+
+# Vídeo
+
+FIXME
