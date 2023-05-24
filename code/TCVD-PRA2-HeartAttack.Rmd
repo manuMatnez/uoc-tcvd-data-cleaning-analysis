@@ -28,19 +28,67 @@ knitr::opts_chunk$set(echo = TRUE)
 # Librerias
 ```
 
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Se carga el juego de datos
+heartAttack <- read.csv('../data/heart_in.csv')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+heartAttack.var_names <- sub(",\\s(?!.*,\\s)", " y ", paste(names(heartAttack), collapse = ", "), perl = TRUE)
+```
+
 # Descripción del dataset
 
-FIXME
+Este dataset trae dos ficheros `heart.csv` y `o2Saturation.csv` y **es importante porque proporciona información sobre factores relacionados con enfermedades cardíacas**, como edad, sexo, síntomas otros datos médicos. Ya que con el **se puede entender mejor la enfermedad y hacer un análisis para detectar cuando se puede estar en riesgo de ataque cardíaco**, sabiendo esto se pueden desarrollar modelos predictivos que tomen decisiones para ayudar a prevenir un ataque cardíaco.
+
+El dataset es el propuesto en el enunciado de la práctica y se ha extraído de kaggel: [**Heart Attack Analysis & Prediction Dataset**](https://www.kaggle.com/datasets/rashikrahmanpritom/heart-attack-analysis-prediction-dataset)
 
 ***
 
-# Integración y selección
+# Integración y selección de variables
 
-FIXME
+Observando los dos ficheros csv, **`heart.csv`** tiene **`r ncol(heartAttack)` variables** y **`r nrow(heartAttack)` registros** mientras que **`o2Saturation.csv`** con **1 variable** y **3585 registros**.
+
+Aunque el nivel de saturación de oxigeno pueda ser importante para los ataques cardíacos, no hay manera de juntar los dos conjuntos de datos en uno solo debido a que no hay un identificador de paciente, por lo que solo usaremos `heart.csv`.
 
 ***
 
 # Limpieza de los datos
+
+### Contenido del dataset {.unlisted .unnumbered}
+
++ **Age**: Edad del paciente.
++ **Sex**: Género del paciente (1 = masculino, 0 = femenino).
++ **exang**: Angina inducida por ejercicio (1 = sí, 0 = no).
++ **ca**: Número de vasos principales (0-3).
++ **cp**: Tipo de dolor en el pecho.
+  - 1: Angina típica.
+  - 2: Angina atípica.
+  - 3: Dolor no anginal.
+  - 4: Asintomático.
++ **trtbps**: Presión arterial en reposo (en mm Hg).
++ **chol**: Colesterol en mg/dl medido mediante un sensor BMI.
++ **fbs**: Nivel de azúcar en sangre en ayunas (> 120 mg/dl) (1 = verdadero, 0 = falso).
++ **rest_ecg**: Resultados electrocardiográficos en reposo.
+  - 0: Normal.
+  - 1: Anormalidad en la onda ST-T (inversiones de onda T y/o elevación o depresión del segmento ST > 0.05 mV).
+  - 2: Probable o definitiva hipertrofia ventricular izquierda según los criterios de Estes.
++ **thalach**: Ritmo cardíaco máximo alcanzado.
++ **target**: 0 = menor probabilidad de ataque al corazón, 1 = mayor probabilidad de ataque al corazón.
+
+Las variables que tiene el dataset son: `r toString(heartAttack.var_names)`. Siendo `output` la variable objetivo.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+str(heartAttack)
+```
+
+FIXME
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+summary(heartAttack)
+```
+
+FIXME
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # FIXME
@@ -49,6 +97,28 @@ FIXME
 FIXME
 
 ## ¿Los datos contienen ceros o elementos vacíos?
+
+Comprobamos si existen NAs o valores en blanco
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+heartAttack.total_na <- sum(is.na(heartAttack))
+heartAttack.total_blancos <- sum(!is.na(heartAttack) & heartAttack=="")
+```
+
+Tenemos que hay `r heartAttack.total_na` valores NAs y `r heartAttack.total_blancos` valores en blanco
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+heartAttack.na = colSums(is.na(heartAttack))
+# NAs con alguna ocurrencia
+heartAttack.na_gt_zero = heartAttack.na[heartAttack.na > 0]
+heartAttack.na_gt_zero
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+heartAttack.blancos = colSums(!is.na(heartAttack) & heartAttack=="")
+heartAttack.blancos_gt_zero = heartAttack.blancos[heartAttack.blancos > 0]
+heartAttack.blancos_gt_zero
+```
 
 FIXME
 
