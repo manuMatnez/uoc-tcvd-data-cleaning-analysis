@@ -6,16 +6,16 @@ date: '`r format(Sys.Date(),"%e de %B %Y")`'
 lang: es-ES
 fontsize: 10pt
 output:
+  pdf_document:
+    highlight: default
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+  word_document: default
   html_document:
     highlight: default
     number_sections: yes
     theme: cosmo
-    toc: yes
-    toc_depth: 2
-  word_document: default
-  pdf_document:
-    highlight: default
-    number_sections: yes
     toc: yes
     toc_depth: 2
 ---
@@ -57,24 +57,27 @@ Aunque el nivel de saturación de oxigeno pueda ser importante para los ataques 
 
 ### Contenido del dataset {.unlisted .unnumbered}
 
-+ **Age**: Edad del paciente.
-+ **Sex**: Género del paciente (1 = masculino, 0 = femenino).
-+ **exang**: Angina inducida por ejercicio (1 = sí, 0 = no).
-+ **ca**: Número de vasos principales (0-3).
++ **age**: Edad del paciente.
++ **sex**: Género del paciente (1 = masculino, 0 = femenino).
 + **cp**: Tipo de dolor en el pecho.
-  - 1: Angina típica.
-  - 2: Angina atípica.
-  - 3: Dolor no anginal.
-  - 4: Asintomático.
+  - 0: Angina típica.
+  - 1: Angina atípica.
+  - 2: Dolor no anginal.
+  - 3: Asintomático.
 + **trtbps**: Presión arterial en reposo (en mm Hg).
 + **chol**: Colesterol en mg/dl medido mediante un sensor BMI.
 + **fbs**: Nivel de azúcar en sangre en ayunas (> 120 mg/dl) (1 = verdadero, 0 = falso).
-+ **rest_ecg**: Resultados electrocardiográficos en reposo.
++ **restecg**: Resultados electrocardiográficos en reposo.
   - 0: Normal.
   - 1: Anormalidad en la onda ST-T (inversiones de onda T y/o elevación o depresión del segmento ST > 0.05 mV).
   - 2: Probable o definitiva hipertrofia ventricular izquierda según los criterios de Estes.
 + **thalach**: Ritmo cardíaco máximo alcanzado.
-+ **target**: 0 = menor probabilidad de ataque al corazón, 1 = mayor probabilidad de ataque al corazón.
++ **exang**: Angina inducida por ejercicio (1 = sí, 0 = no).
++ **oldpeak**: Pico anterior
++ **slp**: Pendiente.
++ **caa**: Número de vasos principales (0-3).
++ **thall**: Resultados de prueba de esfuerzo con talio (0-3).
++ **output**: 0 = menor probabilidad de ataque al corazón, 1 = mayor probabilidad de ataque al corazón.
 
 Las variables que tiene el dataset son: `r toString(heartAttack.var_names)`. Siendo `output` la variable objetivo.
 
@@ -98,27 +101,20 @@ FIXME
 
 ## ¿Los datos contienen ceros o elementos vacíos?
 
-Comprobamos si existen NAs o valores en blanco
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-heartAttack.total_na <- sum(is.na(heartAttack))
-heartAttack.total_blancos <- sum(!is.na(heartAttack) & heartAttack=="")
-```
-
-Tenemos que hay `r heartAttack.total_na` valores NAs y `r heartAttack.total_blancos` valores en blanco
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-heartAttack.na = colSums(is.na(heartAttack))
-# NAs con alguna ocurrencia
-heartAttack.na_gt_zero = heartAttack.na[heartAttack.na > 0]
-heartAttack.na_gt_zero
-```
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-heartAttack.blancos = colSums(!is.na(heartAttack) & heartAttack=="")
-heartAttack.blancos_gt_zero = heartAttack.blancos[heartAttack.blancos > 0]
-heartAttack.blancos_gt_zero
-```
++ **age**: Hay `r length(which(heartAttack$age==0))` pacientes con edad 0
++ **sex**: Es una variable categórica dicotomica de 0 y 1
++ **cp**: Es una variable categórica con 0, 1, 2 y 3
++ **trtbps**: `r length(which(heartAttack$trtbps==0))`
++ **chol**: `r length(which(heartAttack$chol==0))`
++ **fbs**: 
++ **restecg**: 
++ **thalach**: `r length(which(heartAttack$thalach==0))`
++ **exang**: 
++ **oldpeak**: `r length(which(heartAttack$oldpeak==0))`
++ **slp**: `r length(which(heartAttack$slp==0))`
++ **caa**: 
++ **thall**: 
++ **output**: Es una variable categórica dicotomica de 0 y 1
 
 FIXME
 

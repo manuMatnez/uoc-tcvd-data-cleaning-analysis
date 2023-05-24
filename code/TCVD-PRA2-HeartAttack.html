@@ -431,7 +431,7 @@ Attack Analysis &amp; Prediction Dataset</strong></a></p>
 <h1><span class="header-section-number">2</span> Integración y selección
 de variables</h1>
 <p>Observando los dos ficheros csv,
-<strong><code>heart.csv</code></strong> tiene <strong>15
+<strong><code>heart.csv</code></strong> tiene <strong>14
 variables</strong> y <strong>303 registros</strong> mientras que
 <strong><code>o2Saturation.csv</code></strong> con <strong>1
 variable</strong> y <strong>3585 registros</strong>.</p>
@@ -447,25 +447,22 @@ datos</h1>
 <div id="contenido-del-dataset" class="section level3 unlisted unnumbered">
 <h3 class="unlisted unnumbered">Contenido del dataset</h3>
 <ul>
-<li><strong>Age</strong>: Edad del paciente.</li>
-<li><strong>Sex</strong>: Género del paciente (1 = masculino, 0 =
+<li><strong>age</strong>: Edad del paciente.</li>
+<li><strong>sex</strong>: Género del paciente (1 = masculino, 0 =
 femenino).</li>
-<li><strong>exang</strong>: Angina inducida por ejercicio (1 = sí, 0 =
-no).</li>
-<li><strong>ca</strong>: Número de vasos principales (0-3).</li>
 <li><strong>cp</strong>: Tipo de dolor en el pecho.
 <ul>
-<li>1: Angina típica.</li>
-<li>2: Angina atípica.</li>
-<li>3: Dolor no anginal.</li>
-<li>4: Asintomático.</li>
+<li>0: Angina típica.</li>
+<li>1: Angina atípica.</li>
+<li>2: Dolor no anginal.</li>
+<li>3: Asintomático.</li>
 </ul></li>
 <li><strong>trtbps</strong>: Presión arterial en reposo (en mm Hg).</li>
 <li><strong>chol</strong>: Colesterol en mg/dl medido mediante un sensor
 BMI.</li>
 <li><strong>fbs</strong>: Nivel de azúcar en sangre en ayunas (&gt; 120
 mg/dl) (1 = verdadero, 0 = falso).</li>
-<li><strong>rest_ecg</strong>: Resultados electrocardiográficos en
+<li><strong>restecg</strong>: Resultados electrocardiográficos en
 reposo.
 <ul>
 <li>0: Normal.</li>
@@ -475,14 +472,21 @@ o depresión del segmento ST &gt; 0.05 mV).</li>
 criterios de Estes.</li>
 </ul></li>
 <li><strong>thalach</strong>: Ritmo cardíaco máximo alcanzado.</li>
-<li><strong>target</strong>: 0 = menor probabilidad de ataque al
+<li><strong>exang</strong>: Angina inducida por ejercicio (1 = sí, 0 =
+no).</li>
+<li><strong>oldpeak</strong>: Pico anterior</li>
+<li><strong>slp</strong>: Pendiente.</li>
+<li><strong>caa</strong>: Número de vasos principales (0-3).</li>
+<li><strong>thall</strong>: Resultados de prueba de esfuerzo con talio
+(0-3).</li>
+<li><strong>output</strong>: 0 = menor probabilidad de ataque al
 corazón, 1 = mayor probabilidad de ataque al corazón.</li>
 </ul>
 <p>Las variables que tiene el dataset son: age, sex, cp, trtbps, chol,
-fbs, restecg, thalachh, exng, oldpeak, slp, caa, thall, output y y.
-Siendo <code>output</code> la variable objetivo.</p>
+fbs, restecg, thalachh, exng, oldpeak, slp, caa, thall y output. Siendo
+<code>output</code> la variable objetivo.</p>
 <pre class="r"><code>str(heartAttack)</code></pre>
-<pre><code>## &#39;data.frame&#39;:    303 obs. of  15 variables:
+<pre><code>## &#39;data.frame&#39;:    303 obs. of  14 variables:
 ##  $ age     : int  63 37 41 56 57 57 56 44 52 57 ...
 ##  $ sex     : int  1 1 0 1 0 1 0 1 1 1 ...
 ##  $ cp      : int  3 2 1 1 0 0 1 1 2 2 ...
@@ -490,14 +494,13 @@ Siendo <code>output</code> la variable objetivo.</p>
 ##  $ chol    : int  233 250 204 236 354 192 294 263 199 168 ...
 ##  $ fbs     : int  1 0 0 0 0 0 0 0 1 0 ...
 ##  $ restecg : int  0 1 0 1 1 1 0 1 1 1 ...
-##  $ thalachh: int  150 187 172 178 163 148 153 NA 162 174 ...
+##  $ thalachh: int  150 187 172 178 163 148 153 173 162 174 ...
 ##  $ exng    : int  0 0 0 0 1 0 0 0 0 0 ...
 ##  $ oldpeak : num  2.3 3.5 1.4 0.8 0.6 0.4 1.3 0 0.5 1.6 ...
 ##  $ slp     : int  0 0 2 2 2 1 1 2 2 2 ...
 ##  $ caa     : int  0 0 0 0 0 0 0 0 0 0 ...
 ##  $ thall   : int  1 2 2 2 2 1 2 3 3 2 ...
-##  $ output  : int  1 1 1 1 1 1 1 1 1 1 ...
-##  $ y       : chr  &quot;&quot; &quot;yy&quot; &quot;&quot; &quot;&quot; ...</code></pre>
+##  $ output  : int  1 1 1 1 1 1 1 1 1 1 ...</code></pre>
 <p>FIXME</p>
 <pre class="r"><code>summary(heartAttack)</code></pre>
 <pre><code>##       age             sex               cp            trtbps     
@@ -507,15 +510,13 @@ Siendo <code>output</code> la variable objetivo.</p>
 ##  Mean   :54.37   Mean   :0.6832   Mean   :0.967   Mean   :131.6  
 ##  3rd Qu.:61.00   3rd Qu.:1.0000   3rd Qu.:2.000   3rd Qu.:140.0  
 ##  Max.   :77.00   Max.   :1.0000   Max.   :3.000   Max.   :200.0  
-##                                                                  
 ##       chol            fbs            restecg          thalachh    
 ##  Min.   :126.0   Min.   :0.0000   Min.   :0.0000   Min.   : 71.0  
-##  1st Qu.:211.0   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:133.2  
-##  Median :240.0   Median :0.0000   Median :1.0000   Median :152.5  
+##  1st Qu.:211.0   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:133.5  
+##  Median :240.0   Median :0.0000   Median :1.0000   Median :153.0  
 ##  Mean   :246.3   Mean   :0.1485   Mean   :0.5281   Mean   :149.6  
 ##  3rd Qu.:274.5   3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:166.0  
 ##  Max.   :564.0   Max.   :1.0000   Max.   :2.0000   Max.   :202.0  
-##                                                    NA&#39;s   :1      
 ##       exng           oldpeak          slp             caa        
 ##  Min.   :0.0000   Min.   :0.00   Min.   :0.000   Min.   :0.0000  
 ##  1st Qu.:0.0000   1st Qu.:0.00   1st Qu.:1.000   1st Qu.:0.0000  
@@ -523,15 +524,13 @@ Siendo <code>output</code> la variable objetivo.</p>
 ##  Mean   :0.3267   Mean   :1.04   Mean   :1.399   Mean   :0.7294  
 ##  3rd Qu.:1.0000   3rd Qu.:1.60   3rd Qu.:2.000   3rd Qu.:1.0000  
 ##  Max.   :1.0000   Max.   :6.20   Max.   :2.000   Max.   :4.0000  
-##                                                                  
-##      thall           output            y            
-##  Min.   :0.000   Min.   :0.0000   Length:303        
-##  1st Qu.:2.000   1st Qu.:0.0000   Class :character  
-##  Median :2.000   Median :1.0000   Mode  :character  
-##  Mean   :2.314   Mean   :0.5446                     
-##  3rd Qu.:3.000   3rd Qu.:1.0000                     
-##  Max.   :3.000   Max.   :1.0000                     
-## </code></pre>
+##      thall           output      
+##  Min.   :0.000   Min.   :0.0000  
+##  1st Qu.:2.000   1st Qu.:0.0000  
+##  Median :2.000   Median :1.0000  
+##  Mean   :2.314   Mean   :0.5446  
+##  3rd Qu.:3.000   3rd Qu.:1.0000  
+##  Max.   :3.000   Max.   :1.0000</code></pre>
 <p>FIXME</p>
 <pre class="r"><code># FIXME</code></pre>
 <p>FIXME</p>
@@ -539,21 +538,24 @@ Siendo <code>output</code> la variable objetivo.</p>
 <div id="los-datos-contienen-ceros-o-elementos-vacíos" class="section level2" number="3.1">
 <h2><span class="header-section-number">3.1</span> ¿Los datos contienen
 ceros o elementos vacíos?</h2>
-<p>Comprobamos si existen NAs o valores en blanco</p>
-<pre class="r"><code>heartAttack.total_na &lt;- sum(is.na(heartAttack))
-heartAttack.total_blancos &lt;- sum(!is.na(heartAttack) &amp; heartAttack==&quot;&quot;)</code></pre>
-<p>Tenemos que hay 1 valores NAs y 302 valores en blanco</p>
-<pre class="r"><code>heartAttack.na = colSums(is.na(heartAttack))
-# NAs con alguna ocurrencia
-heartAttack.na_gt_zero = heartAttack.na[heartAttack.na &gt; 0]
-heartAttack.na_gt_zero</code></pre>
-<pre><code>## thalachh 
-##        1</code></pre>
-<pre class="r"><code>heartAttack.blancos = colSums(!is.na(heartAttack) &amp; heartAttack==&quot;&quot;)
-heartAttack.blancos_gt_zero = heartAttack.blancos[heartAttack.blancos &gt; 0]
-heartAttack.blancos_gt_zero</code></pre>
-<pre><code>##   y 
-## 302</code></pre>
+<ul>
+<li><strong>age</strong>: Hay 0 pacientes con edad 0</li>
+<li><strong>sex</strong>: Es una variable categórica dicotomica de 0 y
+1</li>
+<li><strong>cp</strong>: Es una variable categórica con 0, 1, 2 y 3</li>
+<li><strong>trtbps</strong>: 0</li>
+<li><strong>chol</strong>: 0</li>
+<li><strong>fbs</strong>:</li>
+<li><strong>restecg</strong>:</li>
+<li><strong>thalach</strong>: 0</li>
+<li><strong>exang</strong>:</li>
+<li><strong>oldpeak</strong>: 99</li>
+<li><strong>slp</strong>: 21</li>
+<li><strong>caa</strong>:</li>
+<li><strong>thall</strong>:</li>
+<li><strong>output</strong>: Es una variable categórica dicotomica de 0
+y 1</li>
+</ul>
 <p>FIXME</p>
 </div>
 <div id="identifica-y-gestiona-los-valores-extremos" class="section level2" number="3.2">
