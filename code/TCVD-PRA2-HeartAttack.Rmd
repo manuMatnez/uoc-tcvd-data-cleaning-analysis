@@ -6,14 +6,14 @@ date: '`r format(Sys.Date(),"%e de %B %Y")`'
 lang: es-ES
 fontsize: 10pt
 output:
-  html_document:
+  pdf_document:
     highlight: default
-    theme: cosmo
     toc: yes
     toc_depth: 2
   word_document: default
-  pdf_document:
+  html_document:
     highlight: default
+    theme: cosmo
     toc: yes
     toc_depth: 2
 ---
@@ -70,7 +70,7 @@ Las variables que tiene el dataset son: `r toString(heartAttack.var_names)`. Sie
   - *1*: Anormalidad con inversiones de onda ST-T y/o alteraciones del segmento ST > 0.05 mV
   - *2*: Hipertrofia ventricular izquierda
 + **thalach**: Ritmo cardíaco máximo alcanzado.
-+ **exang**: Angina inducida por ejercicio.
++ **exng**: Angina inducida por ejercicio.
   - *1*: Sí
   - *0*: No
 + **oldpeak**: Diferencia entre la depresión del segmento ST durante el ejercicio y durante el descanso en un electrocardiograma.
@@ -115,152 +115,39 @@ cor.pearson.output.rowFixed <- sub(",\\s(?!.*,\\s)", " y ", cor.pearson.output.r
 
 Tanto una correlación positiva como una muy negativa son interesantes para la selección de variables. Centrándonos en la fila de la variable objetivo `output` se tienen los siguientes valores: `r cor.pearson.output.rowFixed`.
 
-Se puede tomar como referencia 0.15 como umbral para comprobar las variables que no son necesarias para el estudio, siempre en valor absoluto. En este caso se tienen `exng`, `oldpeak`, `cp`, `thalachh`, `caa`, `slp`, `thall`, `sex` y `age` como variables aptas y `trtbps`, `restecg`, `chol` y `fbs` como poco importantes.
+Se puede tomar como referencia 0.15 como umbral para comprobar las variables que no son necesarias para el estudio, siempre en valor absoluto. En este caso para el coeficiente de correlación de pearson se tienen `exng`, `oldpeak`, `cp`, `thalachh`, `caa`, `slp`, `thall`, `sex` y `age` como variables aptas y `trtbps`, `restecg`, `chol` y `fbs` como poco importantes. Sin embargo para las variables categóricas numéricas seria más apropiado hacer un test de `Fisher` o un `Chi-squared`.
 
-## PCA para comprobar importancia de las variables {.unlisted .unnumbered}
+Se va a proceder a hacer uso del test de `Fisher`
 
-La variable objetivo *output* no debe estar en el PCA, ya que no se quiere predecir a sí misma, sino que se quiere encontrar una combinación de las otras variables que explique la variabilidad de la variable dependiente.
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-heartAttack.pca <- scale(heartAttack %>% select(-output))
-```
-
-Tanto el análisis de componentes principales, *Principal Component Analysis* (PCA), como la descomposición de valores singulares, *Singular Value Decomposition* (SVD), son técnicas que permiten trabajar con nuevas características llamadas componentes, que son independientes entre sí. Estas dos técnicas permiten representar el juego de datos en un nuevo sistema de coordenadas llamado componentes principales. Este sistema está mejor adaptado a la distribución del juego de datos, de forma que recoge mejor su variabilidad.
-
-A continuación se va a aplicar el análisis de componentes principales al dataset
+$p = \frac{{\binom{{a+b}}{{a}} \cdot \binom{{c+d}}{{c}}}}{{\binom{{n}}{{a+c}}}}$
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-pca.acc <- prcomp(heartAttack.pca)
-summary(pca.acc)
-```
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-fviz_eig(pca.acc) + ggtitle("Peso de cada atributo sobre el conjunto de los datos")
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Se calcula la varianza de los componentes principales a partir de la desviación estándar
-var_acc <- pca.acc$sdev^2
-var_acc.kaiser <- var_acc[var_acc > 1]
-var_acc.dim <- paste(paste0("DIM ", seq(1, length(var_acc)), " = ", round(var_acc,4)), collapse = ", ")
-var_acc.dim_fixed <- sub(",\\s(?!.*,\\s)", " y ", var_acc.dim, perl = TRUE)
+heartAttack.fisher.sex <- fisher.test(heartAttack$sex, heartAttack$output)
+heartAttack.fisher.cp <- fisher.test(heartAttack$cp, heartAttack$output)
+heartAttack.fisher.fbs <- fisher.test(heartAttack$fbs, heartAttack$output)
+heartAttack.fisher.restecg <- fisher.test(heartAttack$restecg, heartAttack$output)
+heartAttack.fisher.exng <- fisher.test(heartAttack$exng, heartAttack$output)
+heartAttack.fisher.slp <- fisher.test(heartAttack$slp, heartAttack$output)
+heartAttack.fisher.caa <- fisher.test(heartAttack$caa, heartAttack$output)
+heartAttack.fisher.thall <- fisher.test(heartAttack$thall, heartAttack$output)
 ```
 
-A continuación se muestran las varianzas de los componentes principales a partir de la desviación estándar: `r var_acc.dim_fixed`.
+Se obtiene que:
 
-Se decide utilizar el método de Káiser para decidir cuales de las variables obtenidas serán escogidas. Este criterio mantendrá todas aquellas variables cuya varianza sea superior a 1, es decir nos quedaríamos con `r length(var_acc.kaiser)` dimensiones.
-
-### Calidad de representación
-
-FIXME
-
-```{r echo=FALSE, message=FALSE, warning=TRUE}
-# PCA: Extrae la información sobre las variables
-var <- get_pca_var(pca.acc)
-
-# PCA: Extrae la información sobre las observaciones
-ind <- get_pca_ind(pca.acc)
-```
-
-```{r echo=FALSE, message=FALSE, warning=TRUE}
-varCos2 = var$cos2[,1:length(var_acc.kaiser)]
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-corrplot(varCos2)
-```
-
-FIXME
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-plot1_pca_var <- fviz_pca_var(pca.acc, axes = c(1, 2), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-plot2_pca_var <- fviz_pca_var(pca.acc, axes = c(1, 3), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-plot3_pca_var <- fviz_pca_var(pca.acc, axes = c(1, 4), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-plot4_pca_var <- fviz_pca_var(pca.acc, axes = c(1, 5), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-plot5_pca_var <- fviz_pca_var(pca.acc, axes = c(2, 3), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-plot6_pca_var <- fviz_pca_var(pca.acc, axes = c(2, 4), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-plot7_pca_var <- fviz_pca_var(pca.acc, axes = c(2, 5), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-plot8_pca_var <- fviz_pca_var(pca.acc, axes = c(3, 4), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-plot9_pca_var <- fviz_pca_var(pca.acc, axes = c(3, 5), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-plot10_pca_var <- fviz_pca_var(pca.acc, axes = c(4, 5), col.var = "cos2",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9,repel = TRUE)
-```
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-grid.arrange(plot1_pca_var, plot2_pca_var, plot3_pca_var, plot4_pca_var, ncol = 2)
-```
-
-FIXME
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-grid.arrange(plot5_pca_var, plot6_pca_var, plot7_pca_var, plot8_pca_var, ncol = 2)
-```
-
-FIXME
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-grid.arrange(plot9_pca_var, plot10_pca_var, ncol = 2)
-```
-
-FIXME
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-plot1_contrib <- fviz_contrib(pca.acc, choice = "var", axes = 1)
-plot2_contrib <- fviz_contrib(pca.acc, choice = "var", axes = 2)
-plot3_contrib <- fviz_contrib(pca.acc, choice = "var", axes = 3)
-plot4_contrib <- fviz_contrib(pca.acc, choice = "var", axes = 4)
-plot5_contrib <- fviz_contrib(pca.acc, choice = "var", axes = 5)
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-grid.arrange(plot1_contrib,plot2_contrib,plot3_contrib,plot4_contrib,plot5_contrib,ncol=2)
-```
-
-FIXME
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-varContrib = var$contrib[,1:length(var_acc.kaiser)]
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-corrplot(varContrib, is.cor=FALSE)
-```
-
-FIXME
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-plot1_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(1, 2), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-plot2_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(1, 3), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-plot3_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(1, 4), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-plot4_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(1, 5), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-plot5_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(2, 3), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-plot6_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(2, 4), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-plot7_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(2, 5), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-plot8_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(3, 4), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-plot9_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(3, 5), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-plot10_pca_var_contrib <- fviz_pca_var(pca.acc, axes = c(4, 5), col.var = "contrib",gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), labelsize = 3, alpha.var = 0.9)
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-grid.arrange(plot1_pca_var_contrib, plot2_pca_var_contrib, plot3_pca_var_contrib, plot4_pca_var_contrib, ncol = 2)
-```
-
-FIXME
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-grid.arrange(plot5_pca_var_contrib, plot6_pca_var_contrib, plot7_pca_var_contrib, plot8_pca_var_contrib, ncol = 2)
-```
-
-FIXME
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-grid.arrange(plot9_pca_var_contrib, plot10_pca_var_contrib, ncol = 2)
-```
-
-FIXME
++ **sex** tiene un p-value de `r heartAttack.fisher.sex$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
++ **cp** tiene un p-value de `r heartAttack.fisher.cp$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
++ **fbs** tiene un p-value de `r heartAttack.fisher.fbs$p.value` que es mayor a 0.05, con lo que no es estadisticamente significativa
++ **restecg** tiene un p-value de `r heartAttack.fisher.restecg$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
++ **exng** tiene un p-value de `r heartAttack.fisher.exng$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
++ **slp** tiene un p-value de `r heartAttack.fisher.slp$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
++ **caa** tiene un p-value de `r heartAttack.fisher.caa$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
++ **thall** tiene un p-value de `r heartAttack.fisher.thall$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
 
 ***
 
 # 3. Limpieza de los datos
 
-
+FIXME
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 str(heartAttack)
@@ -284,8 +171,9 @@ FIXME
 
 Tenemos algunas variables categóricas en formato numérico en nuestro conjunto de datos. Estas variables no se pueden considerar en la búsqueda de ceros, ya que el valor 0 es una de las posibles categorías para cada una de ellas. Las variables categóricas en formato numérico son `sex`, `cp`, `fbs`, `restecg`, `exng`, `slp`,`caa`, `thall` y `output`. De las cuales son dicotomicas `sex`, `fbs`, `exng` y `output`.
 
+FIXME
 
-+ **age**: Hay `r length(which(heartAttack$age==0))` pacientes con edad 0
++ **age**: `r length(which(heartAttack$age==0))`
 + **trtbps**: `r length(which(heartAttack$trtbps==0))`
 + **chol**: `r length(which(heartAttack$chol==0))`
 + **thalach**: `r length(which(heartAttack$thalach==0))`
