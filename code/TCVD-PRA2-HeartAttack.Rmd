@@ -6,14 +6,14 @@ date: '`r format(Sys.Date(),"%e de %B %Y")`'
 lang: es-ES
 fontsize: 10pt
 output:
-  pdf_document:
-    highlight: default
-    toc: yes
-    toc_depth: 2
-  word_document: default
   html_document:
     highlight: default
     theme: cosmo
+    toc: yes
+    toc_depth: 2
+  word_document: default
+  pdf_document:
+    highlight: default
     toc: yes
     toc_depth: 2
 ---
