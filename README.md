@@ -2,6 +2,11 @@
 
 ## TODO
 
+## Descripción
+Este proyecto ha sido desarrollado para la asignatura de Tipología y ciclo de vida de los datos del máster de Ciencia de Datos de la Universitat Oberta de Catalunya y tiene como objetivo realizar el tratamiento de un dataset aplicando técnicas de integración, transformación, limpieza y validación de datos. 
+
+El dataset contiene información de 2111 viviendas de lujo, en venta, disponibles en la provincia de Barcelona. La información incluida en este dataset es una recopilación de 25 características de las propiedades, como son el número de habitaciones, el tipo de inmueble, el número de baños, el barrio donde ubica, el año de construcción, el estado del inmueble y la descripción, entre otras, así como el precio de venta.
+
 ## Autores
 
 **Vanessa Moreno González** y **Manuel Ernesto Martínez Martín**
