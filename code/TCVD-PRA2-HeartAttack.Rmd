@@ -286,8 +286,8 @@ geom_boxplot(fill="coral") + facet_wrap(~key,scales='free') + theme(axis.text=el
 Deseamos conocer la relación que existe entre las siguientes variables: 
 
 + **sex**, **cp**: Queremos conocer si existen diferencias significativas entre el tipo de dolor en el pecho que experimentan las observaciones con infarto en función del sexo. 
-+ **age**:Queremos conocer si la media de las variables númericas **trtbps, chol**  son las mismas para los grupos de datos **age** tras realizar una discretización de esta variable. ANOVA
-+ **output vs variables**: Queremos aproximar la relación de dependencia que existe entre la probabilidad de sufrir un infarto y las variables del dataset. Regresión logistica.
++ **age**:Queremos conocer si la media de las variables númericas **trtbps, chol**  son las mismas para los grupos de datos **age** tras realizar una discretización de esta variable. 
++ **output vs variables**: Queremos aproximar la relación de dependencia que existe entre la probabilidad de sufrir un infarto y las variables del dataset. 
 
 
 ## 4.2. Comprobación de la normalidad y homogeneidad de la varianza
