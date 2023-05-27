@@ -335,7 +335,7 @@ min_vejez <- max_min_age[["Vejez"]][1]
 
 # Imprimir los valores máximo y mínimo
 cat("Mínimo:", min_jovenes, "Máximo:", max_jovenes,   "\n")
-cat("Mínimo:", min_media , "Máximo:", max_media, "\n")
+cat("Mínimo:", min_medio , "Máximo:", max_medio, "\n")
 cat( "Mínimo:", min_vejez, "Máximo:", max_vejez,  "\n")
 ```
 Comprobamos si las variables **trtbps, chol** presentan una distribución normal de manera visual, a través del gráfico Q-Q:
