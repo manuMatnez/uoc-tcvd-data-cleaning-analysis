@@ -21,7 +21,7 @@ Tiene como objetivo, predecir, en cada observación, la presencia de infarto.
 
 Consta de un total de 303 observaciones, con 13 variables posibles predictoras y una variable objetivo. Estas variables son:
 
-**age**: Edad del paciente.
++ **age**: Edad del paciente.
 + **sex**: Género del paciente.
   - *0*: Femenino
   - *1*: Masculino
