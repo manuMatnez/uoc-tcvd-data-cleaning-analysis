@@ -501,10 +501,10 @@ Evaluamos el modelo. Predeciremos la variable output para el conjunto de test, y
 
 ```{r}
 #Predecimos
-predicted <- predict(model_2, newdata = test_data, type = "response") > 0.5
+predicted <- predict(model_2, newdata = test, type = "response") > 0.5
 
 #realizamos la matriz de confusion
-confusion_matrix <- table(predicted, test_data$output)
+confusion_matrix <- table(predicted, test$output)
 
 
 # Normalizamos la matriz de confusión
