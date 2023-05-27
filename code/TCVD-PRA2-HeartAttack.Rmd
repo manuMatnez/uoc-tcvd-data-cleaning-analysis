@@ -466,7 +466,7 @@ Dividimos los datos entre train y test.
 ```{r}
 #Utilizaremos el 70% para train y el 30% para test
 set.seed(23)
-train <- sample(1:nrow(heartAttack), nrow(heartAttack) * 0.7)  
+train_index <- sample(1:nrow(heartAttack), nrow(heartAttack) * 0.7)  
 train <- heartAttack[train_index, ]
 test <- heartAttack[-train_index, ]
 
