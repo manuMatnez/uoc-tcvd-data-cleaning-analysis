@@ -373,7 +373,7 @@ datos - PRA2</h1>
 &amp; Prediction Dataset</h3>
 <h4 class="author">Vanessa Moreno González, Manuel Ernesto Martínez
 Martín</h4>
-<h4 class="date">26 de May 2023</h4>
+<h4 class="date">27 de May 2023</h4>
 
 </div>
 
@@ -462,7 +462,7 @@ reposo.
 alteraciones del segmento ST &gt; 0.05 mV</li>
 <li><em>2</em>: Hipertrofia ventricular izquierda</li>
 </ul></li>
-<li><strong>thalach</strong>: Ritmo cardíaco máximo alcanzado.</li>
+<li><strong>thalachh</strong>: Ritmo cardíaco máximo alcanzado.</li>
 <li><strong>exng</strong>: Angina inducida por ejercicio.
 <ul>
 <li><em>1</em>: Sí</li>
@@ -527,34 +527,95 @@ aptas y <code>trtbps</code>, <code>restecg</code>, <code>chol</code> y
 <code>fbs</code> como poco importantes. Sin embargo para las variables
 categóricas numéricas seria más apropiado hacer un test de
 <code>Fisher</code> o un <code>Chi-squared</code>.</p>
-<p>Se va a proceder a hacer uso del test de <code>Fisher</code></p>
+<p>Se va a proceder a hacer uso del test de <code>Fisher</code> con
+<code>fisher.test()</code></p>
 <p><span class="math inline">\(p = \frac{{\binom{{a+b}}{{a}} \cdot
 \binom{{c+d}}{{c}}}}{{\binom{{n}}{{a+c}}}}\)</span></p>
-<p>Se obtiene que:</p>
-<ul>
-<li><strong>sex</strong> tiene un p-value de 1.0422376^{-6} que es menor
-a 0.05, con lo que es estadisticamente significativa</li>
-<li><strong>cp</strong> tiene un p-value de 1.2079934^{-18} que es menor
-a 0.05, con lo que es estadisticamente significativa</li>
-<li><strong>fbs</strong> tiene un p-value de 0.6308003 que es mayor a
-0.05, con lo que no es estadisticamente significativa</li>
-<li><strong>restecg</strong> tiene un p-value de 0.0036292 que es menor
-a 0.05, con lo que es estadisticamente significativa</li>
-<li><strong>exng</strong> tiene un p-value de 1.7599142^{-14} que es
-menor a 0.05, con lo que es estadisticamente significativa</li>
-<li><strong>slp</strong> tiene un p-value de 1.1654794^{-11} que es
-menor a 0.05, con lo que es estadisticamente significativa</li>
-<li><strong>caa</strong> tiene un p-value de 1.3056069^{-16} que es
-menor a 0.05, con lo que es estadisticamente significativa</li>
-<li><strong>thall</strong> tiene un p-value de 2.2664765^{-20} que es
-menor a 0.05, con lo que es estadisticamente significativa</li>
-</ul>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  heartAttack$sex and heartAttack$output
+## p-value = 1.042e-06
+## alternative hypothesis: true odds ratio is not equal to 1
+## 95 percent confidence interval:
+##  0.1519598 0.4783553
+## sample estimates:
+## odds ratio 
+##  0.2731136</code></pre>
+<pre><code>## ##################################################</code></pre>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  heartAttack$cp and heartAttack$output
+## p-value &lt; 2.2e-16
+## alternative hypothesis: two.sided</code></pre>
+<pre><code>## ##################################################</code></pre>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  heartAttack$fbs and heartAttack$output
+## p-value = 0.6308
+## alternative hypothesis: true odds ratio is not equal to 1
+## 95 percent confidence interval:
+##  0.4308961 1.6975867
+## sample estimates:
+## odds ratio 
+##  0.8544825</code></pre>
+<pre><code>## ##################################################</code></pre>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  heartAttack$restecg and heartAttack$output
+## p-value = 0.003629
+## alternative hypothesis: two.sided</code></pre>
+<pre><code>## ##################################################</code></pre>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  heartAttack$exng and heartAttack$output
+## p-value = 1.76e-14
+## alternative hypothesis: true odds ratio is not equal to 1
+## 95 percent confidence interval:
+##  0.07259027 0.23708719
+## sample estimates:
+## odds ratio 
+##   0.133146</code></pre>
+<pre><code>## ##################################################</code></pre>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  heartAttack$slp and heartAttack$output
+## p-value = 1.165e-11
+## alternative hypothesis: two.sided</code></pre>
+<pre><code>## ##################################################</code></pre>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  heartAttack$caa and heartAttack$output
+## p-value &lt; 2.2e-16
+## alternative hypothesis: two.sided</code></pre>
+<pre><code>## ##################################################</code></pre>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  heartAttack$thall and heartAttack$output
+## p-value &lt; 2.2e-16
+## alternative hypothesis: two.sided</code></pre>
+<p>Se entiende entonces que las variables que tienen un <em>p-valor</em>
+por debajo de un nivel de significancia de <code>0.05</code> son
+consideradas buenas para ser escogidas para el análisis, es decir estas
+variables tienen un buen nivel estadístico de significancia y aportan
+información a los posibles modelos en las que se incluyan. De las
+variabels categoricas seleccionadas todas menos <code>fbs</code> tienen
+un p-valor por debajo de <code>0.05</code>.</p>
+<p>Puesto que <code>fbs</code> no es una variable significativa se va a
+evitar su uso.</p>
 <hr />
 </div>
 <div id="limpieza-de-los-datos" class="section level1">
 <h1>3. Limpieza de los datos</h1>
-<p>FIXME</p>
-<pre class="r"><code>str(heartAttack)</code></pre>
+<p>En primer lugar se va a comprobar la estructura con
+<code>str()</code></p>
 <pre><code>## &#39;data.frame&#39;:    303 obs. of  14 variables:
 ##  $ age     : int  63 37 41 56 57 57 56 44 52 57 ...
 ##  $ sex     : int  1 1 0 1 0 1 0 1 1 1 ...
@@ -570,8 +631,17 @@ menor a 0.05, con lo que es estadisticamente significativa</li>
 ##  $ caa     : int  0 0 0 0 0 0 0 0 0 0 ...
 ##  $ thall   : int  1 2 2 2 2 1 2 3 3 2 ...
 ##  $ output  : int  1 1 1 1 1 1 1 1 1 1 ...</code></pre>
-<p>FIXME</p>
-<pre class="r"><code>summary(heartAttack)</code></pre>
+<p>Como se puede observar todos los datos son números, los hay de tipo
+integer y de tipo numeric, para un mejor análisis, los datos de tipo
+integer deberían ser de tipo numeric (si hubiera cadenas estas deberían
+ser de tipo factor ya que ocupan menos memoria y se utilizan así en
+muchos modelos predictivos). Para ello se va a utilizar
+<code>mutate_if()</code> con <code>is.integer</code></p>
+<p>Y ahora se va a ver un resumen general de cada una de las variables
+con sus valores máximos, mínimos media, mean y cuartiles utilizando la
+función <code>summary()</code>. Es aquí donde en los casos numéricos se
+pueden ver si hay valores imposibles de cumplir tanto en máximos como en
+mínimos.</p>
 <pre><code>##       age             sex               cp            trtbps     
 ##  Min.   :29.00   Min.   :0.0000   Min.   :0.000   Min.   : 94.0  
 ##  1st Qu.:47.50   1st Qu.:0.0000   1st Qu.:0.000   1st Qu.:120.0  
@@ -600,29 +670,67 @@ menor a 0.05, con lo que es estadisticamente significativa</li>
 ##  Mean   :2.314   Mean   :0.5446  
 ##  3rd Qu.:3.000   3rd Qu.:1.0000  
 ##  Max.   :3.000   Max.   :1.0000</code></pre>
-<p>FIXME</p>
-<pre class="r"><code># FIXME</code></pre>
-<p>FIXME</p>
+<p>De la variable <code>caa</code> se tenían identificados valores de 0
+a 3, pero el valor máximos es 4.</p>
 <div id="los-datos-contienen-ceros-o-elementos-vacíos" class="section level2">
 <h2>3.1. ¿Los datos contienen ceros o elementos vacíos?</h2>
+<p>Cuando en un dataset se tienen datos nulos, hay una serie de
+estrategias a seguir para solucionar esto y que el juego de datos se
+pueda usar:</p>
+<ul>
+<li><strong>Eliminación de los registros</strong>, esto a veces no es
+adecuado porque puede perderse mucha información que hay en otras
+variables que pueden ser más importantes.</li>
+<li><strong>Imputación de un valor</strong> que puede ser: utilizar la
+media, la mediana, la moda, interpolación, utilización de los vecinos
+cercanos, u otros métodos.</li>
+</ul>
+<div id="búsqueda-de-ceros" class="section level3">
+<h3>Búsqueda de ceros</h3>
 <p>Tenemos algunas variables categóricas en formato numérico en nuestro
 conjunto de datos. Estas variables no se pueden considerar en la
-búsqueda de ceros, ya que el valor 0 es una de las posibles categorías
-para cada una de ellas. Las variables categóricas en formato numérico
-son <code>sex</code>, <code>cp</code>, <code>fbs</code>,
+búsqueda de ceros, ya que el valor <code>0</code> es una de las posibles
+categorías para cada una de ellas. Las variables categóricas en formato
+numérico son <code>sex</code>, <code>cp</code>, <code>fbs</code>,
 <code>restecg</code>, <code>exng</code>,
-<code>slp</code>,<code>caa</code>, <code>thall</code> y
+<code>slp</code>,<code>caa</code>, <code>thall</code> y la target
 <code>output</code>. De las cuales son dicotomicas <code>sex</code>,
 <code>fbs</code>, <code>exng</code> y <code>output</code>.</p>
-<p>FIXME</p>
+<p>También en el resumen mostrado anterior se podía ver a simple vista
+si alguna variable tenía 0 si este fuera su valor mínimo.</p>
+<p>Para buscar los valores nulos podemos usar <code>colSums()</code> y
+comprobando con un <code>=</code> como a continuación</p>
+<pre class="r"><code>selectedColumns &lt;- c(&quot;age&quot;, &quot;trtbps&quot;, &quot;chol&quot;, &quot;thalachh&quot;, &quot;oldpeak&quot;)
+colSums(heartAttack %&gt;% select(all_of(selectedColumns)) == 0)</code></pre>
+<pre><code>##      age   trtbps     chol thalachh  oldpeak 
+##        0        0        0        0       99</code></pre>
 <ul>
-<li><strong>age</strong>: 0</li>
-<li><strong>trtbps</strong>: 0</li>
-<li><strong>chol</strong>: 0</li>
-<li><strong>thalach</strong>: 0</li>
-<li><strong>oldpeak</strong>: 99</li>
+<li><strong>age</strong>: Hay 0 pacientes con 0 años.</li>
+<li><strong>trtbps</strong>: Hay 0 pacientes con 0 o sin presión
+arterial en reposo.</li>
+<li><strong>chol</strong>: Hay 0 pacientes con 0 o sin medición de
+colesterol.</li>
+<li><strong>thalachh</strong>: Hay 0 pacientes con 0 o sin ritmo
+cardíaco máximo alcanzado.</li>
+<li><strong>oldpeak</strong>: Hay 99 pacientes con 0 o sin informar de
+la diferencia en segmento ST con electrocardiograma.</li>
 </ul>
-<p>FIXME</p>
+</div>
+<div id="búsqueda-de-nas" class="section level3">
+<h3>Búsqueda de NAs</h3>
+<p>Para buscar los valores nulos podemos usar de nuevo
+<code>colSums()</code> pero ahora con <code>is.na()</code></p>
+<pre class="r"><code>colSums(is.na(heartAttack))</code></pre>
+<pre><code>##      age      sex       cp   trtbps     chol      fbs  restecg thalachh 
+##        0        0        0        0        0        0        0        0 
+##     exng  oldpeak      slp      caa    thall   output 
+##        0        0        0        0        0        0</code></pre>
+<p>Como se puede observar <strong>no hay valores
+<code>NA</code></strong> en este dataset, otra comprobación sería buscar
+valores en blanco, pero esto se haría si hubiera variables categoricas
+que fueran cadenas, en este caso no es necesario ya que no hay ningún
+valor como texto.</p>
+</div>
 </div>
 <div id="identifica-y-gestiona-los-valores-extremos" class="section level2">
 <h2>3.2. Identifica y gestiona los valores extremos</h2>

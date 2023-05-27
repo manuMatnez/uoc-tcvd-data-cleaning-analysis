@@ -6,14 +6,14 @@ date: '`r format(Sys.Date(),"%e de %B %Y")`'
 lang: es-ES
 fontsize: 10pt
 output:
-  html_document:
+  pdf_document:
     highlight: default
-    theme: cosmo
     toc: yes
     toc_depth: 2
   word_document: default
-  pdf_document:
+  html_document:
     highlight: default
+    theme: cosmo
     toc: yes
     toc_depth: 2
 ---
@@ -69,7 +69,7 @@ Las variables que tiene el dataset son: `r toString(heartAttack.var_names)`. Sie
   - *0*: Normal
   - *1*: Anormalidad con inversiones de onda ST-T y/o alteraciones del segmento ST > 0.05 mV
   - *2*: Hipertrofia ventricular izquierda
-+ **thalach**: Ritmo cardíaco máximo alcanzado.
++ **thalachh**: Ritmo cardíaco máximo alcanzado.
 + **exng**: Angina inducida por ejercicio.
   - *1*: Sí
   - *0*: No
@@ -117,70 +117,113 @@ Tanto una correlación positiva como una muy negativa son interesantes para la s
 
 Se puede tomar como referencia 0.15 como umbral para comprobar las variables que no son necesarias para el estudio, siempre en valor absoluto. En este caso para el coeficiente de correlación de pearson se tienen `exng`, `oldpeak`, `cp`, `thalachh`, `caa`, `slp`, `thall`, `sex` y `age` como variables aptas y `trtbps`, `restecg`, `chol` y `fbs` como poco importantes. Sin embargo para las variables categóricas numéricas seria más apropiado hacer un test de `Fisher` o un `Chi-squared`.
 
-Se va a proceder a hacer uso del test de `Fisher`
+Se va a proceder a hacer uso del test de `Fisher` con `fisher.test()`
 
 $p = \frac{{\binom{{a+b}}{{a}} \cdot \binom{{c+d}}{{c}}}}{{\binom{{n}}{{a+c}}}}$
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 heartAttack.fisher.sex <- fisher.test(heartAttack$sex, heartAttack$output)
+heartAttack.fisher.sex
+
+cat(paste(rep("#", 50), collapse = ""))
+
 heartAttack.fisher.cp <- fisher.test(heartAttack$cp, heartAttack$output)
+heartAttack.fisher.cp
+
+cat(paste(rep("#", 50), collapse = ""))
+
 heartAttack.fisher.fbs <- fisher.test(heartAttack$fbs, heartAttack$output)
+heartAttack.fisher.fbs
+
+cat(paste(rep("#", 50), collapse = ""))
+
 heartAttack.fisher.restecg <- fisher.test(heartAttack$restecg, heartAttack$output)
+heartAttack.fisher.restecg
+
+cat(paste(rep("#", 50), collapse = ""))
+
 heartAttack.fisher.exng <- fisher.test(heartAttack$exng, heartAttack$output)
+heartAttack.fisher.exng
+
+cat(paste(rep("#", 50), collapse = ""))
+
 heartAttack.fisher.slp <- fisher.test(heartAttack$slp, heartAttack$output)
+heartAttack.fisher.slp
+
+cat(paste(rep("#", 50), collapse = ""))
+
 heartAttack.fisher.caa <- fisher.test(heartAttack$caa, heartAttack$output)
+heartAttack.fisher.caa
+
+cat(paste(rep("#", 50), collapse = ""))
+
 heartAttack.fisher.thall <- fisher.test(heartAttack$thall, heartAttack$output)
+heartAttack.fisher.thall
 ```
 
-Se obtiene que:
+Se entiende entonces que las variables que tienen un *p-valor* por debajo de un nivel de significancia de `0.05` son consideradas buenas para ser escogidas para el análisis, es decir estas variables tienen un buen nivel estadístico de significancia y aportan información a los posibles modelos en las que se incluyan. De las variabels categoricas seleccionadas todas menos `fbs` tienen un p-valor por debajo de `0.05`.
 
-+ **sex** tiene un p-value de `r heartAttack.fisher.sex$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
-+ **cp** tiene un p-value de `r heartAttack.fisher.cp$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
-+ **fbs** tiene un p-value de `r heartAttack.fisher.fbs$p.value` que es mayor a 0.05, con lo que no es estadisticamente significativa
-+ **restecg** tiene un p-value de `r heartAttack.fisher.restecg$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
-+ **exng** tiene un p-value de `r heartAttack.fisher.exng$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
-+ **slp** tiene un p-value de `r heartAttack.fisher.slp$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
-+ **caa** tiene un p-value de `r heartAttack.fisher.caa$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
-+ **thall** tiene un p-value de `r heartAttack.fisher.thall$p.value` que es menor a 0.05, con lo que es estadisticamente significativa
+Puesto que `fbs` no es una variable significativa se va a evitar su uso.
 
 ***
 
 # 3. Limpieza de los datos
 
-FIXME
+En primer lugar se va a comprobar la estructura con `str()`
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 str(heartAttack)
 ```
 
-FIXME
+Como se puede observar todos los datos son números, los hay de tipo integer y de tipo numeric, para un mejor análisis, los datos de tipo integer deberían ser de tipo numeric (si hubiera cadenas estas deberían ser de tipo factor ya que ocupan menos memoria y se utilizan así en muchos modelos predictivos). Para ello se va a utilizar `mutate_if()` con `is.integer`
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+heartAttack <- heartAttack %>% mutate_if(is.integer, as.numeric)
+```
+
+Y ahora se va a ver un resumen general de cada una de las variables con sus valores máximos, mínimos media, mean y cuartiles utilizando la función `summary()`. Es aquí donde en los casos numéricos se pueden ver si hay valores imposibles de cumplir tanto en máximos como en mínimos.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 summary(heartAttack)
 ```
 
-FIXME
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-# FIXME
-```
-
-FIXME
+De la variable `caa` se tenían identificados valores de 0 a 3, pero el valor máximos es 4.
 
 ## 3.1. ¿Los datos contienen ceros o elementos vacíos?
 
-Tenemos algunas variables categóricas en formato numérico en nuestro conjunto de datos. Estas variables no se pueden considerar en la búsqueda de ceros, ya que el valor 0 es una de las posibles categorías para cada una de ellas. Las variables categóricas en formato numérico son `sex`, `cp`, `fbs`, `restecg`, `exng`, `slp`,`caa`, `thall` y `output`. De las cuales son dicotomicas `sex`, `fbs`, `exng` y `output`.
+Cuando en un dataset se tienen datos nulos, hay una serie de estrategias a seguir para solucionar esto y que el juego de datos se pueda usar:
 
-FIXME
++ **Eliminación de los registros**, esto a veces no es adecuado porque puede perderse mucha información que hay en otras variables que pueden ser más importantes.
++ **Imputación de un valor** que puede ser: utilizar la media, la mediana, la moda, interpolación, utilización de los vecinos cercanos, u otros métodos.
 
-+ **age**: `r length(which(heartAttack$age==0))`
-+ **trtbps**: `r length(which(heartAttack$trtbps==0))`
-+ **chol**: `r length(which(heartAttack$chol==0))`
-+ **thalach**: `r length(which(heartAttack$thalach==0))`
-+ **oldpeak**: `r length(which(heartAttack$oldpeak==0))`
+### Búsqueda de ceros
 
+Tenemos algunas variables categóricas en formato numérico en nuestro conjunto de datos. Estas variables no se pueden considerar en la búsqueda de ceros, ya que el valor `0` es una de las posibles categorías para cada una de ellas. Las variables categóricas en formato numérico son `sex`, `cp`, `fbs`, `restecg`, `exng`, `slp`,`caa`, `thall` y la target `output`. De las cuales son dicotomicas `sex`, `fbs`, `exng` y `output`.
 
-FIXME
+También en el resumen mostrado anterior se podía ver a simple vista si alguna variable tenía 0 si este fuera su valor mínimo.
+
+Para buscar los valores nulos podemos usar `colSums()` y comprobando con un `=` como a continuación
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+selectedColumns <- c("age", "trtbps", "chol", "thalachh", "oldpeak")
+colSums(heartAttack %>% select(all_of(selectedColumns)) == 0)
+```
+
++ **age**: Hay `r length(which(heartAttack$age==0))` pacientes con 0 años.
++ **trtbps**: Hay `r length(which(heartAttack$trtbps==0))` pacientes con 0 o sin presión arterial en reposo.
++ **chol**: Hay `r length(which(heartAttack$chol==0))` pacientes con 0 o sin medición de colesterol.
++ **thalachh**: Hay `r length(which(heartAttack$thalach==0))` pacientes con 0 o sin ritmo cardíaco máximo alcanzado.
++ **oldpeak**: Hay `r length(which(heartAttack$oldpeak==0))` pacientes con 0 o sin informar de la diferencia en segmento ST con electrocardiograma.
+
+### Búsqueda de NAs
+
+Para buscar los valores nulos podemos usar de nuevo `colSums()` pero ahora con `is.na()`
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+colSums(is.na(heartAttack))
+```
+
+Como se puede observar **no hay valores `NA`** en este dataset, otra comprobación sería buscar valores en blanco, pero esto se haría si hubiera variables categoricas que fueran cadenas, en este caso no es necesario ya que no hay ningún valor como texto.
 
 ## 3.2. Identifica y gestiona los valores extremos
 
