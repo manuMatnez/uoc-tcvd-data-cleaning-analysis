@@ -28,6 +28,7 @@ if(!require("corrplot")) install.packages("corrplot"); library("corrplot")
 if(!require("dplyr")) install.packages("dplyr"); library("dplyr")
 if(!require("tidyr")) install.packages("tidyr"); library("tidyr")
 if(!require("ggplot2")) install.packages("ggplot2"); library("ggplot2")
+if(!require("pROC")) install.packages("pROC"); library("pROC")
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -127,7 +128,7 @@ heartAttack <- heartAttack %>%
   mutate(across(all_of(categorical_var), factor))
 ```
 
-***
+\newpage
 
 # 2. Integración y selección de variables
 
@@ -182,14 +183,14 @@ for (var in categorical_var) {
 Visualizamos los resultados obtenidos del test de Fisher:
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-fisher_results
+print(fisher_results)
 ```
 
 Se entiende entonces que las variables que tienen un *p-valor* por debajo de un nivel de significancia de **0.05** son consideradas buenas para ser escogidas para el análisis, es decir estas variables tienen un buen nivel estadístico de significancia y aportan información a los posibles modelos en las que se incluyan. De las variabels categoricas seleccionadas todas menos `fbs` tienen un p-valor por debajo de `0.05`.
 
 Puesto que `fbs` no es una variable significativa se va a evitar su uso.
 
-***
+\newpage
 
 # 3. Limpieza de los datos
 
@@ -288,11 +289,11 @@ Los valores extremos son:
 + Para `thalachh`: `r toString(thalachh.out)`.
 + Para `trtbps`: `r toString(trtbps.out)`.
 
-***
+FIXME
+
+\newpage
 
 # 4. Análisis de los datos
-
-
 
 ## 4.1. Selección de los grupos de datos que se quieren analizar/comparar
 
@@ -302,36 +303,41 @@ Deseamos conocer la relación que existe entre las siguientes variables:
 + **age**:Queremos conocer si la media de las variables númericas **trtbps, chol**  son las mismas para los grupos de datos **age** tras realizar una discretización de esta variable. 
 + **output vs variables**: Queremos aproximar la relación de dependencia que existe entre la probabilidad de sufrir un infarto y las variables del dataset. 
 
-
 ## 4.2. Comprobación de la normalidad y homogeneidad de la varianza
 
-**SEX, CP y OUTPUT**: No es necesario comprobar la normalidad y homogeneidad de la varianza, ya que aplicaremos el test chi-cuadrado, que se trata de un test no parametrico. 
+**sex, cp y output**: No es necesario comprobar la normalidad y homogeneidad de la varianza, ya que aplicaremos el test chi-cuadrado, que se trata de un test no parametrico. 
 
-**AGE**: Seleccionaremos el test a aplicar en función de la normalidad y la homogeneidad de la varianza de los grupos a comparar. 
+**age**: Seleccionaremos el test a aplicar en función de la normalidad y la homogeneidad de la varianza de los grupos a comparar. 
 
 El primer paso es discretizar la variable age:
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Visualizamos un histograma de la variable
 ggplot(heartAttack, aes(x = age)) +
   geom_histogram(fill = "steelblue", color = "white", bins = 30) +
   labs(x = "Age", y = "Frequency", title = "Distribution of Age")
 ```
-Discretizamos la variable en tres grupos:
 
-```{r}
+Discretizamos la variable en tres grupos: `Jovenes`, `Media` y `Vejez`
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Calculamos los cuantiles
 age_breaks <- c(0, 45, 60, 80)
 
 # Discretizamos la variable age en grupos
-heartAttack$age_discretized <- cut(heartAttack$age, breaks = age_breaks, labels = c("Jovenes", "Media", "Vejez"), include.lowest = TRUE)
+heartAttack$age_discretized <-
+  cut(
+    heartAttack$age,
+    breaks = age_breaks,
+    labels = c("Jovenes", "Media", "Vejez"),
+    include.lowest = TRUE
+  )
 ```
 
 Visualizamos el mínimo y máximo valor para age de cada grupo. 
 
-```{r}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Obtener el máximo y mínimo de la variable "age_discretized" en el conjunto de datos "heartAttack"
-
 max_min_age <- tapply(heartAttack$age, heartAttack$age_discretized, range)
 
 # Obtener el máximo y mínimo para el grupo "tercio1"
@@ -346,15 +352,14 @@ min_medio <- max_min_age[["Media"]][1]
 max_vejez <- max_min_age[["Vejez"]][2]
 min_vejez <- max_min_age[["Vejez"]][1]
 
-# Imprimir los valores máximo y mínimo
-cat("Mínimo:", min_jovenes, "Máximo:", max_jovenes,   "\n")
-cat("Mínimo:", min_medio , "Máximo:", max_medio, "\n")
-cat( "Mínimo:", min_vejez, "Máximo:", max_vejez,  "\n")
+cat("Jovenes -", "Mínimo:", min_jovenes,"Máximo:", max_jovenes, "\n")
+cat("Medio -", "Mínimo:", min_medio,"Máximo:", max_medio, "\n")
+cat("Vejez -", "Mínimo:", min_vejez,"Máximo:", max_vejez, "\n")
 ```
 
-Comprobamos si las variables **trtbps, chol** presentan una distribución normal de manera visual, a través del gráfico Q-Q:
+Ahora comprobamos si las variables **trtbps, chol** presentan una distribución normal de manera visual, a través del gráfico Q-Q:
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Seleccionamos los grupos
 group_names <- unique(heartAttack$age_discretized)
 
@@ -368,19 +373,19 @@ for (i in 1:length(group_names)) {
   
   # Gráfico Q-Q para trtbps
   qqnorm(group_data$trtbps, main = paste("Grupo:", group, "- Variable: trtbps"))
-  qqline(group_data$trtbps)
+  qqline(group_data$trtbps, col = "#FC4E07")
   
   # Gráfico Q-Q para chol
   qqnorm(group_data$chol, main = paste("Grupo:", group, "- Variable: chol"))
-  qqline(group_data$chol)
-  
+  qqline(group_data$chol, col = "#FC4E07")
 }
 ```
+
 De manera visual, parece que la variable **colesterol** en el grupo Vejez, se aleja de la recta normal en la parte derecha el gráfico. Lo mismo se observa para la variable **trtbps** en el grupo de edad Media.
 
 Ahora realizaremos una evaluación más cuantitativa de la distribución, mediante el test Shapiro-Wilk:
 
-```{r}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Comprobamos la normalidad por grupo
 group_names <- unique(heartAttack$age_discretized)
 
@@ -405,17 +410,15 @@ for (group in group_names) {
   } else {
     cat("La variable 'trtbps' en el grupo", group, "no sigue una distribución normal.\n")
   }
-  
     cat("\n")
 }
 ```
+
 Observamos como se cumple lo que hemos visualizado en los gráficos Q-Q y para los grupos vejez y media, la variable chol y trtbps no presentan una distribución normal. Por lo que, descartamos el test de ANOVA de una via y aplicaremos Kruskal-Wallis que no asume una distribución normal en los datos. 
 
 No es necesario comprobar la homogeneidad de los datos ya que al no cumplir el criterio de normalidad, aplicaremos un test no parámetrico.
 
-
 **OUTPUT VS VARIABLES**: Aproximaremos la relación de dependencia entre la variable dependiente output y el resto de variables. En este caso, no es necesario que las variables presenten una distribución normal, ya que emplearemos la regresión logística, y estos supuestos no son requisitos para el modelo.
-
 
 ## 4.3. Aplicación de pruebas estadísticas para comparar los grupos de datos
 
@@ -435,6 +438,7 @@ Calculamos, la frecuencia, en una tabla, con el tipo de dolor en el pecho y el s
 tabla <- table(infarto$cp, infarto$sex)
 tabla
 ```
+
 Realizamos la prueba chi-cuadrado:
 
 ```{r}
@@ -444,8 +448,8 @@ chi_square <- chisq.test(tabla)
 # Imprimimos los resultados
 print(chi_square)
 ```
-El resultado de p-value superior a 0,05 indica que no se encuentran diferencias significativas para el tipo de dolor en el pecho y el sexo dentro de la población que sufre un infarto. 
 
+El resultado de p-value superior a 0,05 indica que no se encuentran diferencias significativas para el tipo de dolor en el pecho y el sexo dentro de la población que sufre un infarto. 
 
 **KRUSKAL-WALLIS**
 
@@ -455,8 +459,7 @@ Nuestra hipotesis son:
 
 ** Hipotesis nula (HO): No hay diferencias significativas de la media del valor trtbps y chol entre los diferentes grupos de edad. 
 
-** Hipotesis alternativa (H1): Hay diferencias significativas de la media del valor trtbps y chol entre los diferentes grupos de edad. 
-
+** Hipotesis alternativa (H1): Hay diferencias significativas de la media del valor trtbps y chol entre los diferentes grupos de edad.
 
 Realizamos el test de Kruskal-Wallis para la presión arterial y los diferentes grupos de edad:
 
@@ -531,7 +534,7 @@ Por ultimo, calcuaremos la curva ROC y evaluamos el modelo con el coeficiente AU
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Instalar y cargar el paquete pROC si no lo tienes instalado
 #install.packages("pROC")
-library(pROC)
+
 
 # Obtener las probabilidades predichas por el modelo
 predicted_probs <- predict(model_2, newdata = test, type = "response")
@@ -558,7 +561,6 @@ Visualizamos el valor del coeficiente bajo la curva:
 auc
 ```
 
-
 Del resultado del modelo podemos concluir que:
 
 La ecuación del modelo ajustado es logit(p) = 0.4046 + 1.5603 * cp1 + 2.1369 * cp2 + 1.8318 * cp3 + 0.6486 * restecg1 - 13.0644 * restecg2 - 0.9669 * oldpeak - 0.6658 * caa
@@ -568,25 +570,25 @@ La ecuación del modelo ajustado es logit(p) = 0.4046 + 1.5603 * cp1 + 2.1369 * 
 + La matriz de confusión normalizada indica que el modelo predice el 84,21% de los valores falsos correctamente, con una tasa de error del 15,79%. Igualmente el modelo predice correctamente el 77,36% de los casos de infarto, con una tasa de error del 22,64%.
 + El valor de AUC de 0,8769 indica un buen rendimiento del modelo.
 
-***
+\newpage
 
 # 5. Representación de los resultados
 
 FIXME
 
-***
+\newpage
 
 # 6. Resolución del problema
 
 FIXME
 
-***
+\newpage
 
 # 7. Código
 
 FIXME
 
-***
+\newpage
 
 # 8. Vídeo
 
