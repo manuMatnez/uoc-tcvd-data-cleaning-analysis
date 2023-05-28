@@ -25,10 +25,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r load_libraries, include=FALSE}
 # Librerias
 if(!require("corrplot")) install.packages("corrplot"); library("corrplot")
-# PCA
-if(!require('dplyr')) install.packages('dplyr'); library('dplyr')
-if (!require('factoextra')) install.packages('factoextra'); library('factoextra')
-if (!require('gridExtra')) install.packages('gridExtra'); library('gridExtra')
+if(!require("dplyr")) install.packages("dplyr"); library("dplyr")
+if(!require("tidyr")) install.packages("tidyr"); library("tidyr")
+if(!require("ggplot2")) install.packages("ggplot2"); library("ggplot2")
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -92,22 +91,18 @@ Las variables que tiene el dataset son: `r toString(heartAttack.var_names)`. Sie
 
 Verificamos la estructura del juego de datos principal y el tipo de datos con los que R ha interpretado cada variable, y si, corresponde a la descripción de las variables del fichero original:
 
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 str(heartAttack)
 ```
 Observamos que todas las variables se han cargado como númerica discreta a excepción de **oldpeak** que se ha cargado como númerica continua. 
 
-A continuación realizaremos una visión general del dataset.
+A continuación realizaremos una visión general del dataset con `glimpse()`.
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 glimpse(heartAttack)
 ```
 
-```{r}
-library(dplyr)
-library(tidyr)
-library(ggplot2)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 heartAttack %>%
   select_if(is.numeric) %>%
   gather() %>%
@@ -117,32 +112,20 @@ heartAttack %>%
   theme(axis.text = element_text(size = 6))
 ```
 
-
-Observamos como **sex, caa, cp, fbs, restecg, exng, slp y thall**  contienen un número limitado de valores únicos, por lo que, probablemente, esten representando variables categóricas. 
+Observamos como **sex, caa, cp, fbs, restecg, exng, slp y thall**  contienen un número limitado de valores únicos, por lo que, probablemente, estén representando variables categóricas. 
 
 Comprobaremos, según la descripción oficial del dataset del punto anterior, que és cada variable y si nuestro análisis inicial es correcto.
 
+Según la descripción oficial, observamos que nuestra suposición es correcta, y que, a excepción de **caa**,  **sex, cp, fbs, restecg, exng, slp y thall** son variables categóricas. Por lo tanto, las convertiremos:
 
-Según la descripción oficial, observamos que nuestra suposición es correcta, y que,a excepción de caa,  **sex, cp, fbs, restecg, exng, slp y thall** son variables categóricas. Por lo tanto, las convertiremos:
-
-
-```{r}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Definimos las variables que hemos indentificado como categoricas
 categorical_var <- c("sex", "cp", "fbs", "restecg", "exng", "slp", "thall")
 
-# Iterar sobre cada variable y la convertimos a factor
-for (variable_name in categorical_var) {
-  heartAttack[[variable_name]] <- as.factor(heartAttack[[variable_name]])
-}
-
+# Las convertimos a factor
+heartAttack <- heartAttack %>%
+  mutate(across(all_of(categorical_var), factor))
 ```
-
-Ahora definiremos otra variable que contenga el nombre de las variables identificadas como númericas:
-
-```{r}
-numerical_var <- c("age", "trtbps", "chol", "thalachh", "oldpeak", "caa")
-```
-
 
 ***
 
@@ -156,11 +139,11 @@ Para la selección de los datos, comprobaremos la correlación entre ellas. En e
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Seleccionamos las variables numéricas y la variable "output" del conjunto de datos
+numerical_var <- c("age", "trtbps", "chol", "thalachh", "oldpeak", "caa")
 selected_vars <- c(numerical_var, "output")
-data_subset <- heartAttack[selected_vars]
 
 # Calculamos la correlación de Pearson
-cor_pearson <- cor(data_subset, method = "pearson")
+cor_pearson <- cor(heartAttack[selected_vars], method = "pearson")
 
 # Visualizamos la matriz de correlación
 corrplot(cor_pearson, method = "color", tl.col = "black", tl.srt = 45, order = "AOE", 
@@ -172,12 +155,12 @@ cor_pearson_output <- round(cor_pearson["output", ], 2)
 
 Tanto una correlación positiva como una muy negativa son interesantes para la selección de variables. Centrándonos en la fila de la variable objetivo `output` se tienen los siguientes valores:
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Visualizamos la correlación de Pearson de la variable "output" versus el resto
 cor_pearson_output
 ```
 
-Se puede tomar como referencia 0.15 como umbral para comprobar las variables que no son necesarias para el estudio, siempre en valor absoluto. En este caso para el coeficiente de correlación de pearson se tienen `age`, `trtbps`,  `thalachh`, `oldpeak` y `caa` como variables aptas y `chol` como poco importante.
+Se puede tomar como referencia **0.1** como umbral para comprobar las variables que no son necesarias para el estudio, siempre en valor absoluto. En este caso para el coeficiente de correlación de pearson se tienen `age`, `trtbps`,  `thalachh`, `oldpeak` y `caa` como variables aptas y `chol` como poco importante.
 
 Para las variables categóricas numéricas seria más apropiado hacer un test de `Fisher` o un `Chi-squared`.
 
@@ -185,7 +168,7 @@ Se va a proceder a hacer uso del test de `Fisher` con `fisher.test()`
 
 $p = \frac{{\binom{{a+b}}{{a}} \cdot \binom{{c+d}}{{c}}}}{{\binom{{n}}{{a+c}}}}$
 
-```{r}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Creamos una lista vacía para almacenar los resultados de las pruebas de Fisher
 fisher_results <- list()
 
@@ -194,16 +177,15 @@ for (var in categorical_var) {
   fisher_result <- fisher.test(heartAttack[[var]], heartAttack$output)
   fisher_results[[var]] <- fisher_result
 }
-
 ```
 
 Visualizamos los resultados obtenidos del test de Fisher:
 
-```{r}
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 fisher_results
 ```
 
-Se entiende entonces que las variables que tienen un *p-valor* por debajo de un nivel de significancia de `0.05` son consideradas buenas para ser escogidas para el análisis, es decir estas variables tienen un buen nivel estadístico de significancia y aportan información a los posibles modelos en las que se incluyan. De las variabels categoricas seleccionadas todas menos `fbs` tienen un p-valor por debajo de `0.05`.
+Se entiende entonces que las variables que tienen un *p-valor* por debajo de un nivel de significancia de **0.05** son consideradas buenas para ser escogidas para el análisis, es decir estas variables tienen un buen nivel estadístico de significancia y aportan información a los posibles modelos en las que se incluyan. De las variabels categoricas seleccionadas todas menos `fbs` tienen un p-valor por debajo de `0.05`.
 
 Puesto que `fbs` no es una variable significativa se va a evitar su uso.
 
@@ -217,8 +199,7 @@ Volvemos a comprobar la estructura de los datos con `str()`, para verificar que 
 str(heartAttack)
 ```
 
-Como se puede observar las variables categóricas ya estan en tipo factor.
-
+Como se puede observar las variables categóricas ya están en tipo factor.
 
 Y ahora se va a ver un resumen general de cada una de las variables con sus valores máximos, mínimos media, mean y cuartiles utilizando la función `summary()`. Es aquí donde en los casos numéricos se pueden ver si hay valores imposibles de cumplir tanto en máximos como en mínimos.
 
@@ -237,7 +218,7 @@ Cuando en un dataset se tienen datos nulos, hay una serie de estrategias a segui
 
 ### Búsqueda de ceros
 
-Tenemos algunas variables categóricas en formato numérico en nuestro conjunto de datos. Estas variables no se pueden considerar en la búsqueda de ceros, ya que el valor `0` es una de las posibles categorías para cada una de ellas. Las variables categóricas en formato numérico son `sex`, `cp`, `fbs`, `restecg`, `exng`, `slp`,`caa`, `thall` y la target `output`. De las cuales son dicotomicas `sex`, `fbs`, `exng` y `output`.
+Tenemos algunas variables categóricas en formato numérico en nuestro conjunto de datos. Estas variables no se pueden considerar en la búsqueda de ceros, ya que el valor `0` es una de las posibles categorías para cada una de ellas. Las variables categóricas en formato numérico que ahora son factor son `sex`, `cp`, `fbs`, `restecg`, `exng`, `slp`, `thall` y la target `output`. De las cuales son dicotomicas `sex`, `fbs`, `exng` y `output`. Además existe la variabe `caa` con tres posibles valores que indican una cantidad que puede ser 0.
 
 También en el resumen mostrado anterior se podía ver a simple vista si alguna variable tenía 0 si este fuera su valor mínimo.
 
@@ -266,16 +247,48 @@ Como se puede observar **no hay valores `NA`** en este dataset, otra comprobaci�
 
 ## 3.2. Identifica y gestiona los valores extremos
 
-Visualizamos los valores atípicos de las variables númericas.
+Primero en las variables numéricas vamos a comprobar cuantos valores atípicos hay de cada una
 
-
-```{r}
-heartAttack %>% select_if(is.numeric) %>% gather() %>% ggplot(aes(value)) +
-geom_boxplot(fill="coral") + facet_wrap(~key,scales='free') + theme(axis.text=element_text(size=6))
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+count_outliers<-function(var){
+  return (length(boxplot.stats(var)$out))
+}
 ```
 
-***
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+selectedColumns <- c("age", "caa", "chol", "oldpeak", "thalachh", "trtbps")
+heartAttack.numeric_vars <- heartAttack %>% select(all_of(selectedColumns))
+sapply(heartAttack.numeric_vars, function(var) count_outliers(var))
+```
 
+Como se puede observar en las variables numéricas, `age` no tiene valores atípicos.
+
+Ahora se visualizarán los valores atípicos de las variables numéricas.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+numeric_box_plot <-heartAttack.numeric_vars %>% gather() %>% ggplot(aes(value)) +
+geom_boxplot(fill="coral") + facet_wrap(~key,scales='free') + theme(axis.text=element_text(size=8)) + labs(title = "Boxplot para buscar Outliers")
+numeric_box_plot
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+age.out <- sort(unique(boxplot.stats(heartAttack$age)$out))
+caa.out <- sort(unique(boxplot.stats(heartAttack$caa)$out))
+chol.out <- sort(unique(boxplot.stats(heartAttack$chol)$out))
+oldpeak.out <- sort(unique(boxplot.stats(heartAttack$oldpeak)$out))
+thalachh.out <- sort(unique(boxplot.stats(heartAttack$thalachh)$out))
+trtbps.out <- sort(unique(boxplot.stats(heartAttack$trtbps)$out))
+```
+
+Los valores extremos son:
+
++ Para `caa`: `r toString(caa.out)`.
++ Para `chol`: `r toString(chol.out)`.
++ Para `oldpeak`: `r toString(oldpeak.out)`.
++ Para `thalachh`: `r toString(thalachh.out)`.
++ Para `trtbps`: `r toString(trtbps.out)`.
+
+***
 
 # 4. Análisis de los datos
 
@@ -338,6 +351,7 @@ cat("Mínimo:", min_jovenes, "Máximo:", max_jovenes,   "\n")
 cat("Mínimo:", min_medio , "Máximo:", max_medio, "\n")
 cat( "Mínimo:", min_vejez, "Máximo:", max_vejez,  "\n")
 ```
+
 Comprobamos si las variables **trtbps, chol** presentan una distribución normal de manera visual, a través del gráfico Q-Q:
 
 ```{r}
@@ -469,12 +483,9 @@ set.seed(23)
 train_index <- sample(1:nrow(heartAttack), nrow(heartAttack) * 0.7)  
 train <- heartAttack[train_index, ]
 test <- heartAttack[-train_index, ]
-
 ```
 
-
 Ajustamos el modelo de regresión logistica.
-
 
 ```{r}
 model <- glm(output ~ ., data = train, family = binomial)
@@ -496,6 +507,7 @@ model_2 <- glm(output ~ cp + restecg + oldpeak + caa, data = train, family = bin
 
 summary(model_2)
 ```
+
 Evaluamos el modelo. Predeciremos la variable output para el conjunto de test, y compararemos con los resultados reales. Visualizaremos la matriz de confusión.
 
 
@@ -539,6 +551,7 @@ Visualizamos la curva:
 ```{r}
 plot(roc_obj, main = "Curva ROC")
 ```
+
 Visualizamos el valor del coeficiente bajo la curva:
 
 ```{r}
