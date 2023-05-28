@@ -115,13 +115,13 @@ heartAttack %>%
 
 Observamos como **sex, caa, cp, fbs, restecg, exng, slp y thall**  contienen un número limitado de valores únicos, por lo que, probablemente, estén representando variables categóricas. 
 
-Comprobaremos, según la descripción oficial del dataset del punto anterior, que és cada variable y si nuestro análisis inicial es correcto.
+Comprobaremos, según la descripción oficial del dataset del punto anterior, que es cada variable y si nuestro análisis inicial es correcto.
 
-Según la descripción oficial, observamos que nuestra suposición es correcta, y que, a excepción de **caa**,  **sex, cp, fbs, restecg, exng, slp y thall** son variables categóricas. Por lo tanto, las convertiremos:
+Según la descripción oficial, observamos que nuestra suposición es correcta, y que son variables categóricas. Por lo tanto, las convertiremos:
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Definimos las variables que hemos indentificado como categoricas
-categorical_var <- c("sex", "cp", "fbs", "restecg", "exng", "slp", "thall")
+categorical_var <- c("sex", "caa", "cp", "fbs", "restecg", "exng", "slp", "thall")
 
 # Las convertimos a factor
 heartAttack <- heartAttack %>%
@@ -140,7 +140,7 @@ Para la selección de los datos, comprobaremos la correlación entre ellas. En e
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Seleccionamos las variables numéricas y la variable "output" del conjunto de datos
-numerical_var <- c("age", "trtbps", "chol", "thalachh", "oldpeak", "caa")
+numerical_var <- c("age", "trtbps", "chol", "thalachh", "oldpeak")
 selected_vars <- c(numerical_var, "output")
 
 # Calculamos la correlación de Pearson
@@ -161,7 +161,7 @@ Tanto una correlación positiva como una muy negativa son interesantes para la s
 cor_pearson_output
 ```
 
-Se puede tomar como referencia **0.1** como umbral para comprobar las variables que no son necesarias para el estudio, siempre en valor absoluto. En este caso para el coeficiente de correlación de pearson se tienen `age`, `trtbps`,  `thalachh`, `oldpeak` y `caa` como variables aptas y `chol` como poco importante.
+Se puede tomar como referencia **0.1** como umbral para comprobar las variables que no son necesarias para el estudio, siempre en valor absoluto. En este caso para el coeficiente de correlación de pearson se tienen `age`, `trtbps`,  `thalachh` y `oldpeak` como variables aptas y `chol` como poco importante.
 
 Para las variables categóricas numéricas seria más apropiado hacer un test de `Fisher` o un `Chi-squared`.
 
@@ -223,7 +223,7 @@ Tenemos algunas variables categóricas en formato numérico en nuestro conjunto 
 
 También en el resumen mostrado anterior se podía ver a simple vista si alguna variable tenía 0 si este fuera su valor mínimo.
 
-Para buscar los valores nulos podemos usar `colSums()` y comprobando con un `=` como a continuación
+Para buscar los valores con ceros podemos usar `colSums()` y comprobando con un `=` como a continuación
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 selectedColumns <- c("age", "trtbps", "chol", "thalachh", "oldpeak")
@@ -257,8 +257,7 @@ count_outliers<-function(var){
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-selectedColumns <- c("age", "caa", "chol", "oldpeak", "thalachh", "trtbps")
-heartAttack.numeric_vars <- heartAttack %>% select(all_of(selectedColumns))
+heartAttack.numeric_vars <- heartAttack %>% select(all_of(numerical_var))
 sapply(heartAttack.numeric_vars, function(var) count_outliers(var))
 ```
 
@@ -273,23 +272,34 @@ numeric_box_plot
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-age.out <- sort(unique(boxplot.stats(heartAttack$age)$out))
-caa.out <- sort(unique(boxplot.stats(heartAttack$caa)$out))
 chol.out <- sort(unique(boxplot.stats(heartAttack$chol)$out))
 oldpeak.out <- sort(unique(boxplot.stats(heartAttack$oldpeak)$out))
 thalachh.out <- sort(unique(boxplot.stats(heartAttack$thalachh)$out))
 trtbps.out <- sort(unique(boxplot.stats(heartAttack$trtbps)$out))
+
+cat("Valores atípicos de 'chol':", chol.out, "con un total de", nrow(heartAttack[(heartAttack$chol %in% chol.out),]) ,"registros", "\n")
+cat("Valores atípicos de 'oldpeak':", oldpeak.out, "con un total de", nrow(heartAttack[(heartAttack$oldpeak %in% oldpeak.out),]) ,"registros", "\n")
+cat("Valores atípicos de 'thalachh':", thalachh.out, "con un total de", nrow(heartAttack[(heartAttack$thalachh %in% thalachh.out),]) ,"registros", "\n")
+cat("Valores atípicos de 'trtbps':", trtbps.out, "con un total de", nrow(heartAttack[(heartAttack$trtbps %in% trtbps.out),]) ,"registros", "\n")
+```
+Se opta por eliminar los registros con valores atípicos
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+heartAttack <-
+  heartAttack[!(
+    heartAttack$chol %in% chol.out |
+    heartAttack$oldpeak %in% oldpeak.out |
+    heartAttack$thalachh %in% thalachh.out |
+    heartAttack$trtbps %in% trtbps.out
+  ), ]
 ```
 
-Los valores extremos son:
+También aunque `caa` no se ha tenido en cuenta para comprobar los valores atípicos porque es una variable categórica, lo cierto es que según la información del dataset solo tiene 4 categorías representadas por los valores 0, 1, 2 o 3. pero existen `r nrow(heartAttack[(heartAttack$caa %in% 4),])` registros donde se tiene una 5ª categoría y debería ser eliminada. Como es de tipo factor se debe de usar `droplevels()` para que se elimine el nivel de dicha categoría.
 
-+ Para `caa`: `r toString(caa.out)`.
-+ Para `chol`: `r toString(chol.out)`.
-+ Para `oldpeak`: `r toString(oldpeak.out)`.
-+ Para `thalachh`: `r toString(thalachh.out)`.
-+ Para `trtbps`: `r toString(trtbps.out)`.
-
-FIXME
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+heartAttack <- heartAttack[!(heartAttack$caa %in% 4),]
+heartAttack$caa <- droplevels(heartAttack$caa)
+```
 
 \newpage
 
