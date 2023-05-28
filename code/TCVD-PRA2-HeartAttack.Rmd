@@ -113,16 +113,19 @@ heartAttack %>%
   theme(axis.text = element_text(size = 6))
 ```
 
-Observamos como **sex, caa, cp, fbs, restecg, exng, slp y thall**  contienen un número limitado de valores únicos, por lo que, probablemente, estén representando variables categóricas. 
-
-Comprobaremos, según la descripción oficial del dataset del punto anterior, que es cada variable y si nuestro análisis inicial es correcto.
+Observamos como **sex, caa, cp, fbs, restecg, exng, slp y thall**  contienen un número limitado de valores únicos, por lo que, probablemente, estén representando variables categóricas. Se comprueba, según la descripción oficial del dataset del punto anterior, que es cada variable y si nuestro análisis inicial es correcto.
 
 Según la descripción oficial, observamos que nuestra suposición es correcta, y que son variables categóricas. Por lo tanto, las convertiremos:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-# Definimos las variables que hemos indentificado como categoricas
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Definimos las variables que hemos identificado como categoricas
 categorical_var <- c("sex", "caa", "cp", "fbs", "restecg", "exng", "slp", "thall")
 
+# Definimos las variables que hemos identificado como numéricas
+numerical_var <- c("age", "trtbps", "chol", "thalachh", "oldpeak")
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Las convertimos a factor
 heartAttack <- heartAttack %>%
   mutate(across(all_of(categorical_var), factor))
@@ -140,7 +143,6 @@ Para la selección de los datos, comprobaremos la correlación entre ellas. En e
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Seleccionamos las variables numéricas y la variable "output" del conjunto de datos
-numerical_var <- c("age", "trtbps", "chol", "thalachh", "oldpeak")
 selected_vars <- c(numerical_var, "output")
 
 # Calculamos la correlación de Pearson
