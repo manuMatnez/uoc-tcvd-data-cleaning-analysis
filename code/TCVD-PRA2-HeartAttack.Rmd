@@ -533,7 +533,186 @@ model_2 <- glm(output ~ cp + restecg + oldpeak + caa, data = train, family = bin
 summary(model_2)
 ```
 
-Evaluamos el modelo. Predeciremos la variable output para el conjunto de test, y compararemos con los resultados reales. Visualizaremos la matriz de confusión.
+
+# 5. Representación de los resultados
+
+**SEX-CP**
+
+El primer paso es representar gráficamente la cantidad de observaciones porcentualmente que han padecido infarto, agrupadas por sexo y por tipo de síntoma padecido.
+
+```{r}
+# Representación de la variable cp en función de los grupos
+infarto_porcentaje <- infarto %>%
+  group_by(sex, cp) %>%
+  summarize(n = n()) %>%
+  mutate(percentage = n / sum(n))
+
+# Mapeo de etiquetas para las categorías de cp y sex
+etiquetas_cp <- c("Angina típica", "Angina atípica", "Dolor no anginal", "Asintomático")
+etiquetas_sex <- c("Femenino", "Masculino")
+
+# Crear un gráfico de líneas
+ggplot(data = infarto_porcentaje, aes(x = cp, y = percentage, color = sex, group = sex)) +
+  geom_line() +
+  labs(x = "cp", y = "Porcentaje de observaciones (%)") +
+  ggtitle("Porcentaje de observaciones por cp y sexo") +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  scale_x_discrete(labels = etiquetas_cp) +
+  scale_color_discrete(labels = etiquetas_sex)
+```
+
+Observamos como, para ambos sexos se experimentan, en orden de mayor a menor, Dolor no anginal, Angina atípica, Angina típica y Asintomático. Los procentajes entre sexos varian, hayandose la mayor diferencia entre sexos en en Dolor no Anginal, donde las mujeres lo experimentan en mas 10% por encima de los hombres.
+
+El test Chi-cuadrado no ha evaluado si existe una diferencia significativa entre estas dos variables categóricas, y para ello evalua la diferencia entre las frecuencias observada y las frecuencias esperadas, en el supuesto nulo de independencia. Ahora vamos a graficas los valores observados y los esperados. 
+
+```{r}
+
+#  Obtener los valores observados y esperados del test chi-cuadrado
+observados <- chi_square$observed
+esperados <- chi_square$expected
+
+# Crear un dataframe con los valores observados y esperados
+datos <- data.frame(cp = rep(categorias_cp, length(categorias_sex)),
+                    sexo = rep(categorias_sex, each = length(categorias_cp)),
+                    observados = as.vector(observados),
+                    esperados = as.vector(esperados))
+
+# Definir los colores para cada categoría de sexo
+colores <- c("steelblue", "darkorange")
+
+# Graficar los datos
+ggplot(data = datos, aes(x = cp, fill = sexo)) +
+  geom_bar(aes(y = observados), position = position_dodge(width = 0.9), stat = "identity", width = 0.4) +
+  geom_bar(aes(y = esperados), position = position_dodge(width = 0.9), fill = "gray", alpha = 0.5, stat = "identity", width = 0.4) +
+  labs(x = "CP", y = "Valor", fill = "Sexo") +
+  ggtitle("Valores Observados y Esperados por CP y Sexo") +
+  scale_fill_manual(values = colores) +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+```
+Visualizamos la tabla de valores: 
+
+```{r}
+datos
+```
+
+Por último, graficamos la distribución de los datos chi-cuadrado, dibujando el umbral crítico y nuestro resultado del test Chi-cuadrado.  
+
+
+```{r}
+# Calcular los grados de libertad
+grados_libertad <- length(unique(infarto$sex)) * (length(unique(infarto$cp)) - 1)
+
+# Calcular los valores para la distribución chi-cuadrado
+x <- seq(0, 20, 0.1)  # Valores en el rango de 0 a 20 (ajusta según tus necesidades)
+y <- dchisq(x, df = grados_libertad)  # Función de densidad chi-cuadrado
+
+# Graficar la distribución chi-cuadrado
+plot(x, y, type = "l", lwd = 2,
+     xlab = "Valor chi-cuadrado", ylab = "Densidad",
+     main = "Distribución Chi-Cuadrado")
+
+# Agregar línea vertical para el valor observado chi-cuadrado
+abline(v = valor_observado, col = "red", lwd = 2)
+text(valor_observado, 0.03, paste("Valor observado:", round(valor_observado, 2)),
+     pos = 4, col = "red")
+
+# Calcular el valor crítico
+nivel_significancia <- 0.05  
+valor_critico <- qchisq(1 - nivel_significancia, df = grados_libertad)
+
+# Agregar línea vertical para el valor crítico
+abline(v = valor_critico, col = "blue", lwd = 2)
+text(valor_critico, 0.03, paste("Valor crítico:", round(valor_critico, 2)),
+     pos = 2, col = "blue")
+```
+
+El valor crítico marcado para los grados de libertad de nuestros datos indican el nivel a partir del cual se considera que los resultados son estadísticamenete significativos. En este caso observamos como el valor observado es inferior al valor crítico, por lo tanto los resultados del test son no significativos.
+
+**CHOL y TRTBPS**
+
+Para comparar estas dos variables hemos empleado Kruskal-Wallis, que afirma que las medianas de los datos en los diferentes grupos son iguales. Por lo que, el primer paso será visualizar la distribución de nuestros datos en cada uno de nuestros grupos. 
+
+Generamos el histograma de la variable chol en cada grupo de edad:
+
+```{r}
+heartAttack_filtered <- heartAttack[, c("chol", "age_discretized")]
+
+ggplot(heartAttack_filtered, aes(x = chol, fill = age_discretized)) +
+  geom_histogram(binwidth = 10, position = "stack") +
+  labs(x = "chol", y = "Frecuencia") +
+  ggtitle("Histograma de chol por Grupo de Edad") +
+  theme_minimal()
+```
+
+Observamos que para media y jóvenes la distribución es similar, pero para vejez parece otro patrón. 
+
+Realizamos el mismo paso para la variable trtbps:
+
+```{r}
+heartAttack_filtered <- heartAttack[, c("trtbps", "age_discretized")]
+
+ggplot(heartAttack_filtered, aes(x = trtbps, fill = age_discretized)) +
+  geom_histogram(binwidth = 10, position = "stack") +
+  labs(x = "trtbps", y = "Frecuencia") +
+  ggtitle("Histograma de trtbps por Grupo de Edad") +
+  theme_minimal()
+```
+
+Los resultados son similares a los obtenidos con la variable chol, donde parece que el patron entre Jovenes y Media es similar y el de vejez es diferente a ambos. 
+
+A continuación realizaremos el boxplot de cada grupo, ya que esta visualización es la que nos permitirá identificar claramente si existen diferencias entre la mediana de los grupos.
+
+
+```{r}
+# Crear el gráfico de cajas
+ggplot(heartAttack, aes(x = age_discretized, y = chol, fill = age_discretized)) +
+  geom_boxplot(color = "black") +
+  labs(x = "Grupo de Edad", y = "chol") +
+  ggtitle("Distribución de chol por Grupo de Edad") +
+  theme_minimal()
+```
+
+Para la variable chol observamos que existen diferencias en su media para cada grupo. Visualizamos este valor para cada grupo:
+
+```{r}
+# Calcular la media por grupo
+means <- tapply(heartAttack$chol, heartAttack$age_discretized, mean)
+
+# Mostrar las medias por grupo
+print(means)
+```
+Realizamos el boxplot para la variable trtbps:
+
+```{r}
+# Crear el gráfico de cajas
+ggplot(heartAttack, aes(x = age_discretized, y = trtbps, fill = age_discretized)) +
+  geom_boxplot(color = "black") +
+  labs(x = "Grupo de Edad", y = "trtbps") +
+  ggtitle("Distribución de trtbps por Grupo de Edad") +
+  theme_minimal()
+```
+
+Observamos que se cumple el mismo patrón que en el caso anterior, y para vejez, ademas, observamos una caja mas ensanchada, lo que significa que la variabilidad de los datos es mayor en ese grupo. 
+
+Calculamos la media para cada grupo:
+
+```{r}
+# Calcular la media por grupo
+means <- tapply(heartAttack$trtbps, heartAttack$age_discretized, mean)
+
+# Mostrar las medias por grupo
+print(means)
+```
+Estos resultados concuerdan con el test de Kruskall-Wallis donde se concluia que el valor de estas variables variaba en función del grupo de edad.
+
+
+
+**REGRESIÓN LOGÍSTICA**
+
+A partir del modelo obtenido en el apartado anterior predeciremos la variable output para el conjunto de test, y compararemos con los resultados reales. Visualizaremos la matriz de confusión.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 #Predecimos
@@ -586,9 +765,6 @@ La ecuación del modelo ajustado es logit(p) = 0.4046 + 1.5603 * cp1 + 2.1369 * 
 + La matriz de confusión normalizada indica que el modelo predice el 84,21% de los valores falsos correctamente, con una tasa de error del 15,79%. Igualmente el modelo predice correctamente el 77,36% de los casos de infarto, con una tasa de error del 22,64%.
 + El valor de AUC de 0,8769 indica un buen rendimiento del modelo.
 
-# 5. Representación de los resultados
-
-FIXME
 
 # 6. Resolución del problema
 
