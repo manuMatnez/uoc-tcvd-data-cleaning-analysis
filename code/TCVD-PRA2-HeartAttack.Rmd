@@ -572,6 +572,10 @@ El test Chi-cuadrado no ha evaluado si existe una diferencia significativa entre
 observados <- chi_square$observed
 esperados <- chi_square$expected
 
+# Categorías para las variables sex y cp
+categorias_sex <- c("Femenino", "Masculino")
+categorias_cp <- c("Angina típica", "Angina atípica", "Dolor no anginal", "Asintomático")
+
 # Crear un dataframe con los valores observados y esperados
 datos <- data.frame(cp = rep(categorias_cp, length(categorias_sex)),
                     sexo = rep(categorias_sex, each = length(categorias_cp)),
@@ -613,6 +617,9 @@ y <- dchisq(x, df = grados_libertad)  # Función de densidad chi-cuadrado
 plot(x, y, type = "l", lwd = 2,
      xlab = "Valor chi-cuadrado", ylab = "Densidad",
      main = "Distribución Chi-Cuadrado")
+
+# Obtener el valor observado del estadístico chi-cuadrado
+valor_observado <- chi_square$statistic
 
 # Agregar línea vertical para el valor observado chi-cuadrado
 abline(v = valor_observado, col = "red", lwd = 2)
