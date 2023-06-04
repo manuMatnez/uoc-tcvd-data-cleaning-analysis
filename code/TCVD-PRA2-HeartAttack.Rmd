@@ -516,17 +516,17 @@ La representación de los resultados de la regresión logística se mostrarán e
 El primer paso es representar gráficamente la cantidad de observaciones porcentualmente que han padecido infarto, agrupadas por sexo y por tipo de síntoma padecido.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Representación de la variable cp en función de los grupos
+# Representamos la variable cp en función de los grupos
 infarto_porcentaje <- infarto %>%
   group_by(sex, cp) %>%
   summarize(n = n()) %>%
   mutate(percentage = n / sum(n))
 
-# Mapeo de etiquetas para las categorías de cp y sex
+# Mapeamos las etiquetas para las categorías de cp y sex
 etiquetas_cp <- c("Angina típica", "Angina atípica", "Dolor no anginal", "Asintomático")
 etiquetas_sex <- c("Femenino", "Masculino")
 
-# Crear un gráfico de líneas
+# Creamos un gráfico de líneas
 ggplot(data = infarto_porcentaje, aes(x = cp, y = percentage, color = sex, group = sex)) +
   geom_line() +
   labs(x = "cp", y = "Porcentaje de observaciones (%)") +
@@ -542,24 +542,24 @@ Observamos como, para ambos sexos se experimentan, en orden de mayor a menor, Do
 El test Chi-cuadrado no ha evaluado si existe una diferencia significativa entre estas dos variables categóricas, y para ello evalúa la diferencia entre las frecuencias observada y las frecuencias esperadas, en el supuesto nulo de independencia. Ahora vamos a gráficas los valores observados y los esperados. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-#  Obtener los valores observados y esperados del test chi-cuadrado
+#  Obtenemos los valores observados y esperados del test chi-cuadrado
 observados <- chi_square$observed
 esperados <- chi_square$expected
 
-# Categorías para las variables sex y cp
+# Definimos las categorías para las variables sex y cp
 categorias_sex <- c("Femenino", "Masculino")
 categorias_cp <- c("Angina típica", "Angina atípica", "Dolor no anginal", "Asintomático")
 
-# Crear un dataframe con los valores observados y esperados
+# Creamos un dataframe con los valores observados y esperados
 datos <- data.frame(cp = rep(categorias_cp, length(categorias_sex)),
                     sexo = rep(categorias_sex, each = length(categorias_cp)),
                     observados = as.vector(observados),
                     esperados = as.vector(esperados))
 
-# Definir los colores para cada categoría de sexo
+# Definimos los colores para cada categoría de sexo
 colores <- c("steelblue", "darkorange")
 
-# Graficar los datos
+# Graficamos los datos
 ggplot(data = datos, aes(x = cp, fill = sexo)) +
   geom_bar(aes(y = observados), position = position_dodge(width = 0.9), stat = "identity", width = 0.4) +
   geom_bar(aes(y = esperados), position = position_dodge(width = 0.9), fill = "gray", alpha = 0.5, stat = "identity", width = 0.4) +
@@ -586,31 +586,33 @@ kable(datos,
 Por último, graficamos la distribución de los datos Chi-cuadrado, dibujando el umbral crítico y nuestro resultado del test Chi-cuadrado.  
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Calcular los grados de libertad
+# Calculamos los grados de libertad
 grados_libertad <- length(unique(infarto$sex)) * (length(unique(infarto$cp)) - 1)
 
 # Calcular los valores para la distribución chi-cuadrado
-x <- seq(0, 20, 0.1)  # Valores en el rango de 0 a 20 (ajusta según tus necesidades)
-y <- dchisq(x, df = grados_libertad)  # Función de densidad chi-cuadrado
+x <- seq(0, 20, 0.1) 
 
-# Graficar la distribución chi-cuadrado
+# Generamos la función de densidad chi-cuadrado
+y <- dchisq(x, df = grados_libertad)  
+
+# Graficamos la distribución chi-cuadrado
 plot(x, y, type = "l", lwd = 2,
      xlab = "Valor chi-cuadrado", ylab = "Densidad",
      main = "Distribución Chi-Cuadrado")
 
-# Obtener el valor observado del estadístico chi-cuadrado
+# Obtenemos el valor observado del estadístico chi-cuadrado
 valor_observado <- chi_square$statistic
 
-# Agregar línea vertical para el valor observado chi-cuadrado
+# Agregamos la línea vertical para el valor observado chi-cuadrado
 abline(v = valor_observado, col = "red", lwd = 2)
 text(valor_observado, 0.03, paste("Valor observado:", round(valor_observado, 2)),
      pos = 4, col = "red")
 
-# Calcular el valor crítico
+# Calculamos el valor crítico
 nivel_significancia <- 0.05  
 valor_critico <- qchisq(1 - nivel_significancia, df = grados_libertad)
 
-# Agregar línea vertical para el valor crítico
+# Agregamos la línea vertical para el valor crítico
 abline(v = valor_critico, col = "blue", lwd = 2)
 text(valor_critico, 0.11, paste("Valor crítico:", round(valor_critico, 2)),
      pos = 2, col = "blue")
@@ -639,7 +641,7 @@ A continuación realizaremos el boxplot de cada grupo, ya que esta visualizació
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Crear el gráfico de cajas
+# Creamos el gráfico de cajas
 ggplot(heartAttack, aes(x = age_discretized, y = trtbps, fill = age_discretized)) +
   geom_boxplot(color = "black") +
   labs(x = "Grupo de Edad", y = "trtbps") +
@@ -652,10 +654,10 @@ Observamos que existen diferencias de la media de trtbps para cada grupo de edad
 Calculamos la media para cada grupo y la mostramos:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Calcular la media por grupo
+# Calculamos la media por grupo
 means <- tapply(heartAttack$trtbps, heartAttack$age_discretized, mean)
 
-# Mostrar las medias por grupo
+# Mostramos las medias por grupo
 print(means)
 
 ```
