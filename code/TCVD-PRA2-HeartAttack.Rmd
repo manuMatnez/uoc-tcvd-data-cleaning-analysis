@@ -265,7 +265,7 @@ geom_boxplot(fill="coral") + facet_wrap(~key,scales='free') + theme(axis.text=el
 numeric_box_plot
 ```
 
-También queremos ver si se va a perder mucha información a la hora de borrar registros por ello veremos cuantos registros tenemos a tes y despues de la eliminación
+También queremos ver si se va a perder mucha información a la hora de borrar registros por ello veremos cuantos registros tenemos a tes y después de la eliminación
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 reg_totales <- nrow(heartAttack)
@@ -282,6 +282,7 @@ cat("Valores atípicos de 'oldpeak':", oldpeak.out,"con un total de", nrow(heart
 cat("Valores atípicos de 'thalachh':", thalachh.out,"con un total de", nrow(heartAttack[(heartAttack$thalachh %in% thalachh.out),]) ,"registros", "\n")
 cat("Valores atípicos de 'trtbps':", trtbps.out,"con un total de", nrow(heartAttack[(heartAttack$trtbps %in% trtbps.out),]) ,"registros", "\n")
 ```
+
 Se opta por eliminar los registros con valores atípicos
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -303,7 +304,7 @@ heartAttack$caa <- droplevels(heartAttack$caa)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 reg_no_outliers <- nrow(heartAttack)
-cat(paste0("Cantidad de registros antes ", reg_totales, " y después de eliminar los valores atípicos ", reg_no_outliers), "\n")
+cat("Cantidad de registros antes", reg_totales,"y después de eliminar los valores atípicos", reg_no_outliers, "\n")
 ```
 
 Realmente de 303 registros a 279 no hay mucha diferencia así que se mantiene la eliminación de outliers.
@@ -379,9 +380,7 @@ Ahora comprobamos si la variable `trtbps`, presenta una distribución normal de 
 group_names <- unique(heartAttack$age_discretized)
 
 #Configuramos la ventana
-par(mfrow = c(length(group_names), 1)) 
-
-par(mfrow = c(2, 2))
+par(mfrow = c(length(group_names), 2)) 
 #Imprimimos los gráficos
 for (i in 1:length(group_names)) {
   group <- group_names[i]
@@ -390,7 +389,6 @@ for (i in 1:length(group_names)) {
   # Gráfico Q-Q para trtbps
   qqnorm(group_data$trtbps, main = paste("Grupo:", group, "- Variable: trtbps"))
   qqline(group_data$trtbps, col = "#FC4E07")
- 
 }
 ```
 
@@ -404,13 +402,9 @@ group_names <- unique(heartAttack$age_discretized)
 
 for (group in group_names) {
   group_data <- subset(heartAttack, age_discretized == group)
-  
-
   shapiro_test_trtbps <- shapiro.test(group_data$trtbps)
-  
   cat("Grupo:", group, "\n")
   cat("El p-value de trtbps es:", shapiro_test_trtbps$p.value, "\n")
-  
    if (shapiro_test_trtbps$p.value >= 0.05) {
     cat("La variable 'trtbps' en el grupo", group, "sigue una distribución normal.\n")
   } else {
@@ -568,7 +562,6 @@ ggplot(data = datos, aes(x = cp, fill = sexo)) +
   scale_fill_manual(values = colores) +
   theme_minimal() +
   theme(legend.position = "top")
-
 ```
 
 Visualizamos la tabla de valores: 
@@ -635,10 +628,10 @@ ggplot(heartAttack_filtered, aes(x = trtbps, fill = age_discretized)) +
   ggtitle("Histograma de trtbps por Grupo de Edad") +
   theme_minimal()
 ```
+
 Se observa que el patrón entre los jóvenes y el grupo de edad media es similar y el de vejez es diferente a ambos. 
 
 A continuación realizaremos el boxplot de cada grupo, ya que esta visualización es la que nos permitirá identificar claramente si existen diferencias entre la mediana de los grupos.
-
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Creamos el gráfico de cajas
@@ -659,7 +652,6 @@ means <- tapply(heartAttack$trtbps, heartAttack$age_discretized, mean)
 
 # Mostramos las medias por grupo
 print(means)
-
 ```
 
 Estos resultados concuerdan con el test de Kruskall-Wallis donde se concluía que el valor de estas variables variaba en función del grupo de edad.
@@ -722,6 +714,10 @@ La ecuación del modelo ajustado es logit(p) = 1.2937 + 1.7425 * cp1 + 2.5354 * 
 
 + El valor de AUC de **0.8472** indica un buen rendimiento del modelo en la clasificación de los datos.
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+write.csv(heartAttack,'../data/heart_out.csv')
+```
+
 # 6. Resolución del problema
 
 Los resultados obtenidos son concluyentes y brindan respuestas satisfactorias a las preguntas planteadas. Nuestro modelo logístico ha demostrado ser efectivo al predecir la probabilidad de sufrir un ataque al corazón. Al explorar los datos, hemos descubierto correlaciones y diferencias significativas entre diferentes grupos de pacientes. Por ejemplo, no se encontraron diferencias significativas en cuanto al tipo de dolor en el pecho y el sexo dentro de la población que sufre un infarto. Esto sugiere que estas variables no tienen un impacto significativo en la probabilidad de padecer un ataque al corazón en la muestra analizada. Sin embargo, hemos observado que los niveles de presión sanguínea varían en función de la edad, lo que indica una relación entre la edad de los pacientes y este factor. Estos hallazgos sugieren que la edad puede ser un factor influyente en el riesgo de sufrir un infarto. Por último, nuestro modelo de regresión logística ha demostrado un buen rendimiento en la clasificación de los datos, con una precisión de alrededor del 80%.
@@ -732,7 +728,9 @@ Además de en el archivo `TCVD-PRA2-HeartAttack.Rmd`, también habrá uno llamad
 
 # 8. Vídeo
 
-FIXME
+El vídeo esta colgado en VideoPEC del campus de la UOC y se puede acceder desde el siguiente [**enlace**](https://cv.uoc.edu/app/blogaula222/222_m2_851_01_448590/2023/06/04/practica-2-limpieza-y-analisis-de-datos/?ili=1).
+
+https://cv.uoc.edu/app/blogaula222/222_m2_851_01_448590/2023/06/04/practica-2-limpieza-y-analisis-de-datos/?ili=1
 
 # 9. Contribuciones
 

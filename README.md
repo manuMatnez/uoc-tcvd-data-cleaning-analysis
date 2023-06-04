@@ -65,6 +65,14 @@ Consta de un total de 303 observaciones, con 13 variables posibles predictoras y
 
 El dataset se ha extraído de kaggel: [**Heart Attack Analysis & Prediction Dataset**](https://www.kaggle.com/datasets/rashikrahmanpritom/heart-attack-analysis-prediction-dataset)
 
+## Ficheros
+
+* **data/heart_in.csv**: Fichero de entrada.
+* **data/heart_out.csv**: Fichero de salida que ha sido tratado.
+* **code/TCVD-PRA2-Code.R**: Código de la práctica.
+* **code/TCVD-PRA2-HeartAttack.Rmd**: Código de la práctica con informe.
+* **TCVD-PRA2-Memoria.pdf**: Informe en pdf.
+
 ## Licencia
 
 El contenido de este proyecto esta licencia bajo la [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html)
