@@ -6,14 +6,14 @@ date: '`r format(Sys.Date(),"%e de %B %Y")`'
 lang: es-ES
 fontsize: 10pt
 output:
-  html_document:
+  pdf_document:
     highlight: default
-    theme: cosmo
     toc: yes
     toc_depth: 2
   word_document: default
-  pdf_document:
+  html_document:
     highlight: default
+    theme: cosmo
     toc: yes
     toc_depth: 2
 ---
@@ -29,13 +29,14 @@ if(!require("dplyr")) install.packages("dplyr"); library("dplyr")
 if(!require("tidyr")) install.packages("tidyr"); library("tidyr")
 if(!require("ggplot2")) install.packages("ggplot2"); library("ggplot2")
 if(!require("pROC")) install.packages("pROC"); library("pROC")
+if(!require('kableExtra')) install.packages('kableExtra'); library('kableExtra')
 ```
+
+\newpage
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 heartAttack <- read.csv('../data/heart_in.csv')
 ```
-
-\newpage
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 heartAttack.var_names <- sub(",\\s(?!.*,\\s)", " y ", paste(names(heartAttack), collapse = ", "), perl = TRUE)
@@ -104,7 +105,7 @@ A continuación realizaremos una visión general del dataset con `glimpse()`.
 glimpse(heartAttack)
 ```
 
-Y una visión en general de los valores de las variables numéricas para determinar la cantidad de valores que pueden tener, esto nos ayuda también a confirmar cuales son numéricas continuas o cuales son numéricas discretas
+Y una visión en general con gráficas de los valores de las variables numéricas para determinar la cantidad de valores que pueden tener, esto nos ayuda también a confirmar cuales son numéricas continuas o cuales son numéricas discretas
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 heartAttack %>%
@@ -120,13 +121,14 @@ Observamos como **sex, caa, cp, fbs, restecg, exng, slp y thall**  contienen un 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Definimos las variables que hemos identificado como categoricas
-categorical_var <- c("sex", "caa", "cp", "fbs", "restecg", "exng", "slp", "thall")
+categorical_var <-
+  c("sex", "caa", "cp", "fbs", "restecg", "exng", "slp", "thall")
 
 # Definimos las variables que hemos identificado como numéricas
 numerical_var <- c("age", "trtbps", "chol", "thalachh", "oldpeak")
 ```
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Las convertimos a factor
 heartAttack <- heartAttack %>%
   mutate(across(all_of(categorical_var), factor))
@@ -134,7 +136,7 @@ heartAttack <- heartAttack %>%
 
 # 2. Integración y selección de variables
 
-Después de análisis inicial, vemos que hay realmente dos ficheros que no estan alineados en el numéro de registros y que tampoco tenemos forma de unirlos, **`heart.csv`** tiene **`r ncol(heartAttack)` variables** y **`r nrow(heartAttack)` registros** mientras que **`o2Saturation.csv`** con **1 variable** y **3585 registros**.
+Después de análisis inicial, vemos que hay realmente dos ficheros que no estan alineados en el número de registros y que tampoco tenemos forma de unirlos, **`heart.csv`** tiene **`r ncol(heartAttack)` variables** y **`r nrow(heartAttack)` registros** mientras que **`o2Saturation.csv`** con **1 variable** y **3585 registros**.
 
 Aunque el nivel de saturación de oxigeno pueda ser importante para los ataques cardíacos, no hay manera de juntar los dos conjuntos de datos en uno solo debido a que no hay un identificador de paciente, por lo que solo usaremos `heart.csv`.
 
@@ -170,7 +172,7 @@ Se va a proceder a hacer uso del test de `Fisher` con `fisher.test()`
 
 $p = \frac{{\binom{{a+b}}{{a}} \cdot \binom{{c+d}}{{c}}}}{{\binom{{n}}{{a+c}}}}$
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Creamos una lista vacía para almacenar los resultados de las pruebas de Fisher
 fisher_results <- list()
 
@@ -183,11 +185,11 @@ for (var in categorical_var) {
 
 Visualizamos los resultados obtenidos del test de Fisher:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 print(fisher_results)
 ```
 
-Se entiende entonces que las variables que tienen un *p-valor* por debajo de un nivel de significancia de **0.05** son consideradas buenas para ser escogidas para el análisis, es decir estas variables tienen un buen nivel estadístico de significancia y aportan información a los posibles modelos en las que se incluyan. De las variabels categoricas seleccionadas todas menos `fbs` tienen un p-valor por debajo de `0.05`.
+Se entiende entonces que las variables que tienen un *p-valor* por debajo de un nivel de significancia de **0.05** son consideradas buenas para ser escogidas para el análisis, es decir estas variables tienen un buen nivel estadístico de significancia y aportan información a los posibles modelos en las que se incluyan. De las variables categóricas seleccionadas todas menos `fbs` tienen un p-valor por debajo de `0.05`.
 
 Puesto que `fbs` no es una variable significativa se va a evitar su uso.
 
@@ -226,7 +228,7 @@ También en el resumen mostrado anterior se podía ver a simple vista si alguna 
 
 Para buscar los valores con ceros podemos usar `colSums()` y comprobando con un `=` como a continuación
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 colSums(heartAttack %>% select(all_of(numerical_var)) == 0)
 ```
 
@@ -240,7 +242,7 @@ colSums(heartAttack %>% select(all_of(numerical_var)) == 0)
 
 Para buscar los valores nulos podemos usar de nuevo `colSums()` pero ahora con `is.na()`
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 colSums(is.na(heartAttack))
 ```
 
@@ -283,10 +285,10 @@ oldpeak.out <- sort(unique(boxplot.stats(heartAttack$oldpeak)$out))
 thalachh.out <- sort(unique(boxplot.stats(heartAttack$thalachh)$out))
 trtbps.out <- sort(unique(boxplot.stats(heartAttack$trtbps)$out))
 
-cat("Valores atípicos de 'chol':", chol.out, "con un total de", nrow(heartAttack[(heartAttack$chol %in% chol.out),]) ,"registros", "\n")
-cat("Valores atípicos de 'oldpeak':", oldpeak.out, "con un total de", nrow(heartAttack[(heartAttack$oldpeak %in% oldpeak.out),]) ,"registros", "\n")
-cat("Valores atípicos de 'thalachh':", thalachh.out, "con un total de", nrow(heartAttack[(heartAttack$thalachh %in% thalachh.out),]) ,"registros", "\n")
-cat("Valores atípicos de 'trtbps':", trtbps.out, "con un total de", nrow(heartAttack[(heartAttack$trtbps %in% trtbps.out),]) ,"registros", "\n")
+cat("Valores atípicos de 'chol':", chol.out,"con un total de", nrow(heartAttack[(heartAttack$chol %in% chol.out),]) ,"registros", "\n")
+cat("Valores atípicos de 'oldpeak':", oldpeak.out,"con un total de", nrow(heartAttack[(heartAttack$oldpeak %in% oldpeak.out),]) ,"registros", "\n")
+cat("Valores atípicos de 'thalachh':", thalachh.out,"con un total de", nrow(heartAttack[(heartAttack$thalachh %in% thalachh.out),]) ,"registros", "\n")
+cat("Valores atípicos de 'trtbps':", trtbps.out,"con un total de", nrow(heartAttack[(heartAttack$trtbps %in% trtbps.out),]) ,"registros", "\n")
 ```
 Se opta por eliminar los registros con valores atípicos
 
@@ -309,7 +311,7 @@ heartAttack$caa <- droplevels(heartAttack$caa)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 reg_no_outliers <- nrow(heartAttack)
-cat("Cantidad de registros antes", reg_totales, "y después de eliminar los valores atípicos", reg_no_outliers, "\n")
+cat(paste0("Cantidad de registros antes ", reg_totales, " y después de eliminar los valores atípicos ", reg_no_outliers), "\n")
 ```
 
 Realmente de 303 registros a 279 no hay mucha diferencia así que se mantiene la eliminación de outliers.
@@ -323,8 +325,6 @@ Deseamos conocer la relación que existe entre las siguientes variables:
 + **sex**, **cp**: Queremos conocer si existen diferencias significativas entre el tipo de dolor en el pecho que experimentan las observaciones con infarto en función del sexo. 
 + **age**:Queremos conocer si la media de las variables numéricas **trtbps, chol**  son las mismas para los grupos de datos **age** tras realizar una discretización de esta variable. 
 + **output vs variables**: Queremos aproximar la relación de dependencia que existe entre la probabilidad de sufrir un infarto y las variables del dataset. 
-
-FIXME
 
 ## 4.2. Comprobación de la normalidad y homogeneidad de la varianza
 
@@ -341,9 +341,9 @@ ggplot(heartAttack, aes(x = age)) +
   labs(x = "Age", y = "Frequency", title = "Distribution of Age")
 ```
 
-Y a continuación, discretizamos la variable en tres grupos: `Jovenes`, `Media` y `Vejez`
+Y a continuación, discretizamos la variable en tres grupos: `Jovenes`, `Media` y `Vejez`, de 0 a 45, de 45 a 60 y 60 a 80
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Calculamos los cuantiles
 age_breaks <- c(0, 45, 60, 80)
 
@@ -359,7 +359,7 @@ heartAttack$age_discretized <-
 
 Visualizamos el mínimo y máximo valor para age de cada grupo. 
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Obtener el máximo y mínimo de la variable "age_discretized" en el conjunto de datos "heartAttack"
 max_min_age <- tapply(heartAttack$age, heartAttack$age_discretized, range)
 
@@ -408,7 +408,7 @@ De manera visual, parece que la variable `colesterol` en el grupo Vejez, se alej
 
 Ahora realizaremos una evaluación más cuantitativa de la distribución, mediante el test Shapiro-Wilk con `shapiro.test()`:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Comprobamos la normalidad por grupo
 group_names <- unique(heartAttack$age_discretized)
 
@@ -451,96 +451,94 @@ Para analizar las diferencias entre el tipo de dolor en el pecho y el sexo en la
 
 El primer paso es seleccionar únicamente las observaciones con output 1.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 infarto <- subset(heartAttack, output== 1)
 ```
 
 Calculamos, la frecuencia, en una tabla, con el tipo de dolor en el pecho y el sexo. 
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 tabla <- table(infarto$cp, infarto$sex)
 tabla
 ```
 
 Realizamos la prueba chi-cuadrado:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Prueba de chi-cuadrado 
 chi_square <- chisq.test(tabla)
 
 # Imprimimos los resultados
-print(chi_square)
+chi_square
 ```
 
-El resultado de p-value superior a 0,05 indica que no se encuentran diferencias significativas para el tipo de dolor en el pecho y el sexo dentro de la población que sufre un infarto. 
+El resultado de p-value superior a 0.05 indica que **no se encuentran diferencias significativas para el tipo de dolor en el pecho y el sexo dentro de la población que sufre un infarto**. 
 
 ### KRUSKAL-WALLIS
 
 Para comparar las variables **trtbps** y **chol** entre los grupos de edad **Jovenes, Media y Vejez**, y como sabemos que no se cumple en supuesto de normalidad de los datos en cada grupo, aplicaremos Kruskal_Wallis. 
 
-Nuestra hipotesis son:
+Nuestra hipótesis son:
 
 + Hipotesis nula (HO): No hay diferencias significativas de la media del valor trtbps y chol entre los diferentes grupos de edad. 
 + Hipotesis alternativa (H1): Hay diferencias significativas de la media del valor trtbps y chol entre los diferentes grupos de edad.
 
 Realizamos el test de Kruskal-Wallis para la presión arterial y los diferentes grupos de edad:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-kruskal.test(trtbps~age_discretized, data=heartAttack)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+kruskal_trtbps <- kruskal.test(trtbps~age_discretized, data=heartAttack)
+kruskal_trtbps
 ```
 Realizamos el test de Kruskal-Wallis para el colesterol y los diferentes grupos de edad:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-kruskal.test(chol~age_discretized, data=heartAttack)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+kruskal_chol <- kruskal.test(chol~age_discretized, data=heartAttack)
+kruskal_chol
 ```
-Los valores de p obtenidos en ambos test, son inferiores a 0.05, por lo que podemos rechazar la hipotesis nula y concluir que el valor de colesterol y presión sanguinea varia en función del grupo de edad de las observaciones.
+Los valores de p obtenidos en ambos test, son inferiores a 0.05, por lo que podemos rechazar la hipotesis nula y concluir que **el valor de colesterol y presión sanguínea varia en función del grupo de edad** de las observaciones.
 
 ### REGRESIÓN LOGISTICA
 
-Por último, aproximaremos la relación de dependencia entre la variable dependiente **output** y **el resto de variables** mediante una regresión logistica.
+Por último, aproximaremos la relación de dependencia entre la variable dependiente **output** y **el resto de variables** mediante una regresión logística.
 
-Dividimos los datos entre train y test.
+Dividimos los datos entre train y test con las siguientes proporciones: 70% entrenamiento y 30% test.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-#Utilizaremos el 70% para train y el 30% para test
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Utilizaremos el 70% para train y el 30% para test
 set.seed(23)
 train_index <- sample(1:nrow(heartAttack), nrow(heartAttack) * 0.7)  
 train <- heartAttack[train_index, ]
 test <- heartAttack[-train_index, ]
 ```
 
-Ajustamos el modelo de regresión logistica.
+Ajustamos el modelo de regresión logística y visualizamos el resultado del modelo:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 model <- glm(output ~ ., data = train, family = binomial)
-```
 
-Visualizamos el resultado del modelo:
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Obtenemos los resultados del modelo
 summary(model)
 ```
 
-Observamos que las variables que son estadísticamente significativas para output son **cp, restecg, oldpeak y caa**. 
+Observamos que las variables que son estadísticamente significativas para output son **cp, oldpeak y caa**.
 
 Por lo tanto, volvemos a realizar un modelo con solo esas variables.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Ajustamos un nuevo modelo con las variables significativas
-model_2 <- glm(output ~ cp + restecg + oldpeak + caa, data = train, family = binomial)
-
+model_2 <- glm(output ~ cp + oldpeak + caa, data = train, family = binomial)
 summary(model_2)
 ```
 
+La representación de los resultados de la regresión logística se mostrarán en el apartado 5.
 
 # 5. Representación de los resultados
 
-**SEX-CP**
+### SEX-CP
 
 El primer paso es representar gráficamente la cantidad de observaciones porcentualmente que han padecido infarto, agrupadas por sexo y por tipo de síntoma padecido.
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Representación de la variable cp en función de los grupos
 infarto_porcentaje <- infarto %>%
   group_by(sex, cp) %>%
@@ -562,12 +560,11 @@ ggplot(data = infarto_porcentaje, aes(x = cp, y = percentage, color = sex, group
   scale_color_discrete(labels = etiquetas_sex)
 ```
 
-Observamos como, para ambos sexos se experimentan, en orden de mayor a menor, Dolor no anginal, Angina atípica, Angina típica y Asintomático. Los procentajes entre sexos varian, hayandose la mayor diferencia entre sexos en en Dolor no Anginal, donde las mujeres lo experimentan en mas 10% por encima de los hombres.
+Observamos como, para ambos sexos se experimentan, en orden de mayor a menor, Dolor no anginal, Angina atípica, Angina típica y Asintomático. Los porcentajes entre sexos varían, hayandose la mayor diferencia entre sexos en en Dolor no Anginal, donde las mujeres lo experimentan en mas 10% por encima de los hombres.
 
-El test Chi-cuadrado no ha evaluado si existe una diferencia significativa entre estas dos variables categóricas, y para ello evalua la diferencia entre las frecuencias observada y las frecuencias esperadas, en el supuesto nulo de independencia. Ahora vamos a graficas los valores observados y los esperados. 
+El test Chi-cuadrado no ha evaluado si existe una diferencia significativa entre estas dos variables categóricas, y para ello evalúa la diferencia entre las frecuencias observada y las frecuencias esperadas, en el supuesto nulo de independencia. Ahora vamos a gráficas los valores observados y los esperados. 
 
-```{r}
-
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #  Obtener los valores observados y esperados del test chi-cuadrado
 observados <- chi_square$observed
 esperados <- chi_square$expected
@@ -596,16 +593,22 @@ ggplot(data = datos, aes(x = cp, fill = sexo)) +
   theme(legend.position = "top")
 
 ```
+
 Visualizamos la tabla de valores: 
 
-```{r}
-datos
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+kable(datos,
+  caption = "Tabla de valores", row.names = FALSE, longtable = TRUE) %>%
+  column_spec(1, width = "12em") %>%
+  column_spec(2, width = "12em") %>%
+  column_spec(3, width = "6em") %>%
+  column_spec(4, width = "10em") %>%
+  kable_styling(latex_options = c("hold_position", "repeat_header"))
 ```
 
-Por último, graficamos la distribución de los datos chi-cuadrado, dibujando el umbral crítico y nuestro resultado del test Chi-cuadrado.  
+Por último, graficamos la distribución de los datos Chi-cuadrado, dibujando el umbral crítico y nuestro resultado del test Chi-cuadrado.  
 
-
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Calcular los grados de libertad
 grados_libertad <- length(unique(infarto$sex)) * (length(unique(infarto$cp)) - 1)
 
@@ -632,23 +635,23 @@ valor_critico <- qchisq(1 - nivel_significancia, df = grados_libertad)
 
 # Agregar línea vertical para el valor crítico
 abline(v = valor_critico, col = "blue", lwd = 2)
-text(valor_critico, 0.03, paste("Valor crítico:", round(valor_critico, 2)),
+text(valor_critico, 0.11, paste("Valor crítico:", round(valor_critico, 2)),
      pos = 2, col = "blue")
 ```
 
 El valor crítico marcado para los grados de libertad de nuestros datos indican el nivel a partir del cual se considera que los resultados son estadísticamenete significativos. En este caso observamos como el valor observado es inferior al valor crítico, por lo tanto los resultados del test son no significativos.
 
-**CHOL y TRTBPS**
+### CHOL y TRTBPS
 
 Para comparar estas dos variables hemos empleado Kruskal-Wallis, que afirma que las medianas de los datos en los diferentes grupos son iguales. Por lo que, el primer paso será visualizar la distribución de nuestros datos en cada uno de nuestros grupos. 
 
 Generamos el histograma de la variable chol en cada grupo de edad:
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 heartAttack_filtered <- heartAttack[, c("chol", "age_discretized")]
 
 ggplot(heartAttack_filtered, aes(x = chol, fill = age_discretized)) +
-  geom_histogram(binwidth = 10, position = "stack") +
+  geom_histogram(binwidth = 10, position = "stack", colour='black') +
   labs(x = "chol", y = "Frecuencia") +
   ggtitle("Histograma de chol por Grupo de Edad") +
   theme_minimal()
@@ -656,13 +659,13 @@ ggplot(heartAttack_filtered, aes(x = chol, fill = age_discretized)) +
 
 Observamos que para media y jóvenes la distribución es similar, pero para vejez parece otro patrón. 
 
-Realizamos el mismo paso para la variable trtbps:
+Realizamos el mismo paso para la variable `trtbps`:
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 heartAttack_filtered <- heartAttack[, c("trtbps", "age_discretized")]
 
 ggplot(heartAttack_filtered, aes(x = trtbps, fill = age_discretized)) +
-  geom_histogram(binwidth = 10, position = "stack") +
+  geom_histogram(binwidth = 10, position = "stack", colour='black') +
   labs(x = "trtbps", y = "Frecuencia") +
   ggtitle("Histograma de trtbps por Grupo de Edad") +
   theme_minimal()
@@ -672,8 +675,7 @@ Los resultados son similares a los obtenidos con la variable chol, donde parece 
 
 A continuación realizaremos el boxplot de cada grupo, ya que esta visualización es la que nos permitirá identificar claramente si existen diferencias entre la mediana de los grupos.
 
-
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Crear el gráfico de cajas
 ggplot(heartAttack, aes(x = age_discretized, y = chol, fill = age_discretized)) +
   geom_boxplot(color = "black") +
@@ -684,16 +686,17 @@ ggplot(heartAttack, aes(x = age_discretized, y = chol, fill = age_discretized)) 
 
 Para la variable chol observamos que existen diferencias en su media para cada grupo. Visualizamos este valor para cada grupo:
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Calcular la media por grupo
 means <- tapply(heartAttack$chol, heartAttack$age_discretized, mean)
 
 # Mostrar las medias por grupo
 print(means)
 ```
+
 Realizamos el boxplot para la variable trtbps:
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Crear el gráfico de cajas
 ggplot(heartAttack, aes(x = age_discretized, y = trtbps, fill = age_discretized)) +
   geom_boxplot(color = "black") +
@@ -704,24 +707,23 @@ ggplot(heartAttack, aes(x = age_discretized, y = trtbps, fill = age_discretized)
 
 Observamos que se cumple el mismo patrón que en el caso anterior, y para vejez, ademas, observamos una caja mas ensanchada, lo que significa que la variabilidad de los datos es mayor en ese grupo. 
 
-Calculamos la media para cada grupo:
+Calculamos la media para cada grupo y la mostramos:
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Calcular la media por grupo
 means <- tapply(heartAttack$trtbps, heartAttack$age_discretized, mean)
 
 # Mostrar las medias por grupo
 print(means)
 ```
+
 Estos resultados concuerdan con el test de Kruskall-Wallis donde se concluia que el valor de estas variables variaba en función del grupo de edad.
 
-
-
-**REGRESIÓN LOGÍSTICA**
+### REGRESIÓN LOGÍSTICA
 
 A partir del modelo obtenido en el apartado anterior predeciremos la variable output para el conjunto de test, y compararemos con los resultados reales. Visualizaremos la matriz de confusión.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Predecimos
 predicted <- predict(model_2, newdata = test, type = "response") > 0.5
 
@@ -735,7 +737,7 @@ normalized_confusion_matrix <- prop.table(confusion_matrix, margin = 1)
 print(normalized_confusion_matrix)
 ```
 
-Por ultimo, calcularemos la curva ROC y evaluamos el modelo con el coeficiente AUC, que indica el valor del area bajo la curva. 
+Por ultimo, calcularemos la curva ROC y evaluamos el modelo con el coeficiente AUC, que indica el valor del área bajo la curva. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Obtener las probabilidades predichas por el modelo
@@ -753,34 +755,52 @@ roc_obj <- roc(labels, predicted_probs)
 
 Visualizamos la curva:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 plot(roc_obj, main = "Curva ROC")
 ```
 
 Visualizamos el valor del coeficiente bajo la curva:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 auc
 ```
 
 Del resultado del modelo podemos concluir que:
 
-La ecuación del modelo ajustado es logit(p) = 0.4046 + 1.5603 * cp1 + 2.1369 * cp2 + 1.8318 * cp3 + 0.6486 * restecg1 - 13.0644 * restecg2 - 0.9669 * oldpeak - 0.6658 * caa
+La ecuación del modelo ajustado es logit(p) = 1.2937 + 1.7425 * cp1 + 2.5354 * cp2 + 1.8978 * cp3 - 1.1598 * oldpeak - 2.6510 * caa1 - 2.1125 * caa2 - 3.3442 * caa3.
 
-+ Las variables que presentan significancia respecto la variable de salida (infarto) son cp, restecg, oldpeak y caa
-+ Los coeficientes de la ecuación del modelo indican por cada unidad que aumenta es varariable, cuanto aumenta el log-odds de la variable output.
-+ La matriz de confusión normalizada indica que el modelo predice el 84,21% de los valores falsos correctamente, con una tasa de error del 15,79%. Igualmente el modelo predice correctamente el 77,36% de los casos de infarto, con una tasa de error del 22,64%.
-+ El valor de AUC de 0,8769 indica un buen rendimiento del modelo.
++ Las variables que presentan significancia respecto a la variable de salida (infarto) son cp, oldpeak y caa.
 
++ Los coeficientes de la ecuación del modelo indican que, por cada unidad que aumenta la variable correspondiente, el log-odds de la variable de salida aumenta en el valor del coeficiente asociado.
+
++ La matriz de confusión indica que el modelo predice correctamente el 80.65% de los valores negativos (no infarto) y el 81.13% de los valores positivos (infarto).
+
++ El valor de AUC de **0.8472** indica un buen rendimiento del modelo en la clasificación de los datos.
 
 # 6. Resolución del problema
 
-FIXME
+Los resultados obtenidos son concluyentes y brindan respuestas satisfactorias a las preguntas planteadas. Nuestro modelo logístico ha demostrado ser efectivo al predecir la probabilidad de sufrir un ataque al corazón. Al explorar los datos, hemos descubierto correlaciones y diferencias significativas entre diferentes grupos de pacientes. Por ejemplo, no se encontraron diferencias significativas en cuanto al tipo de dolor en el pecho y el sexo dentro de la población que sufre un infarto. Esto sugiere que estas variables no tienen un impacto significativo en la probabilidad de padecer un ataque al corazón en la muestra analizada. Sin embargo, hemos observado que los niveles de colesterol y presión sanguínea varían en función de la edad, lo que indica una relación entre la edad de los pacientes y estos factores. Estos hallazgos sugieren que la edad puede ser un factor influyente en el riesgo de sufrir un infarto. Por último, nuestro modelo de regresión logística ha demostrado un buen rendimiento en la clasificación de los datos, con una precisión de alrededor del 80%.
 
 # 7. Código
 
-FIXME
+Además de en el archivo `TCVD-PRA2-HeartAttack.Rmd`, también habrá uno llamado `TCVD-PRA2-code.R` dentro de la misma carpeta `/code`
 
 # 8. Vídeo
 
 FIXME
+
+# 9. Contribuciones
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+contribucion <- data.frame(
+  Contribuciones = c("Investigación previa", "Redacción de las respuestas", "Desarrollo del código", "Participación en el vídeo"),
+  Firma = c("V.M.G, M.E.M.M", "V.M.G, M.E.M.M", "V.M.G, M.E.M.M", "V.M.G, M.E.M.M")
+)
+
+kable(contribucion,
+  caption = "Resumen de contribución en la práctica", row.names = FALSE, longtable = TRUE) %>%
+  column_spec(1, width = "20em") %>%
+  column_spec(2, width = "20em") %>%
+  kable_styling(latex_options = c("hold_position", "repeat_header"))
+```
+

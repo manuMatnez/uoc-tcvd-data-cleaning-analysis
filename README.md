@@ -1,11 +1,9 @@
-# Limpieza y Preprocesado del dataset "Heart Attack Analysis & Prediction Dataset"
-
-## TODO
+# Limpieza, Preprocesado y Análisis del dataset "Heart Attack Analysis & Prediction Dataset"
 
 ## Descripción
-Este proyecto ha sido desarrollado para la asignatura de Tipología y ciclo de vida de los datos del máster de Ciencia de Datos de la Universitat Oberta de Catalunya y tiene como objetivo realizar el tratamiento de un dataset aplicando técnicas de integración, transformación, limpieza y validación de datos. 
+Este proyecto ha sido desarrollado para la asignatura de Tipología y ciclo de vida de los datos del máster de Ciencia de Datos de la Universitat Oberta de Catalunya y tiene como objetivo limpiar, analizar, visualizar y sacar las conclusiones propias del juego de datos "Heart Attack Analysis & Prediction Dataset" con información médica.
 
-El dataset contiene información de 2111 viviendas de lujo, en venta, disponibles en la provincia de Barcelona. La información incluida en este dataset es una recopilación de 25 características de las propiedades, como son el número de habitaciones, el tipo de inmueble, el número de baños, el barrio donde ubica, el año de construcción, el estado del inmueble y la descripción, entre otras, así como el precio de venta.
+En la web venían dos archivos, pero `o2Saturation.csv` tiene más registros y no hay forma de unirlo con `heart.csv`, así que solamente se ha utilizado `heart.csv`.
 
 ## Autores
 
@@ -23,6 +21,8 @@ El dataset contiene información de 2111 viviendas de lujo, en venta, disponible
 
 El dataset analizado, es un dataset de clasificación, **Heart Attack Analysis & Prediction Dataset**, que contiene información sobre 13 variables relacionadas con los infartos al corazón. 
 Tiene como objetivo, predecir, en cada observación, la presencia de infarto.
+
+El dataset contiene información médica de pacientes. Es interesante, ya que con el **se puede entender mejor la enfermedad y hacer un análisis para detectar cuando se puede estar en riesgo de ataque cardíaco**, sabiendo esto se pueden desarrollar modelos predictivos que tomen decisiones para ayudar a prevenir un ataque cardíaco.
 
 Consta de un total de 303 observaciones, con 13 variables posibles predictoras y una variable objetivo. Estas variables son:
 
