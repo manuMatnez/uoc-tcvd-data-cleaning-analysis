@@ -664,6 +664,7 @@ means <- tapply(heartAttack$trtbps, heartAttack$age_discretized, mean)
 
 # Mostrar las medias por grupo
 print(means)
+
 ```
 
 Estos resultados concuerdan con el test de Kruskall-Wallis donde se concluia que el valor de estas variables variaba en función del grupo de edad.
