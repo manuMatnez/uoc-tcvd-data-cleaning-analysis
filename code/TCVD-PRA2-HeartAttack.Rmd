@@ -352,18 +352,18 @@ heartAttack$age_discretized <-
 Visualizamos el mínimo y máximo valor para age de cada grupo. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Obtener el máximo y mínimo de la variable "age_discretized" en el conjunto de datos "heartAttack"
+# Obtenemos el máximo y mínimo de la variable "age_discretized" en el conjunto de datos "heartAttack"
 max_min_age <- tapply(heartAttack$age, heartAttack$age_discretized, range)
 
-# Obtener el máximo y mínimo para el grupo "tercio1"
+# Obtenemos el máximo y mínimo para el grupo "jovenes"
 max_jovenes <- max_min_age[["Jovenes"]][2]
 min_jovenes <- max_min_age[["Jovenes"]][1]
 
-# Obtener el máximo y mínimo para el grupo "tercio2"
+# Obtenemos el máximo y mínimo para el grupo "media"
 max_medio <- max_min_age[["Media"]][2]
 min_medio <- max_min_age[["Media"]][1]
 
-# Obtener el máximo y mínimo para el grupo "tercio3"
+# Obtenemos el máximo y mínimo para el grupo "vejez"
 max_vejez <- max_min_age[["Vejez"]][2]
 min_vejez <- max_min_age[["Vejez"]][1]
 
