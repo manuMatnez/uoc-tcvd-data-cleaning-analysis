@@ -320,7 +320,7 @@ Deseamos conocer la relación que existe entre las siguientes variables:
 
 ## 4.2. Comprobación de la normalidad y homogeneidad de la varianza
 
-**sex, cp y output**: No es necesario comprobar la normalidad y homogeneidad de la varianza, ya que aplicaremos el test chi-cuadrado, que se trata de un test no parametrico. 
+**sex, cp y output**: No es necesario comprobar la normalidad y homogeneidad de la varianza, ya que aplicaremos el test chi-cuadrado, que se trata de un test no paramétrico. 
 
 **age**: Seleccionaremos el test a aplicar en función de la normalidad y la homogeneidad de la varianza de los grupos a comparar. 
 
@@ -330,13 +330,13 @@ El primer paso es discretizar la variable age. Primero vamos a mostrar un histog
 #Visualizamos un histograma de la variable
 ggplot(heartAttack, aes(x = age)) +
   geom_histogram(fill = "steelblue", color = "white", bins = 30) +
-  labs(x = "Age", y = "Frequency", title = "Distribution of Age")
+  labs(x = "Age", y = "Frecuencia", title = "Distribucion de Age")
 ```
 
 Y a continuación, discretizamos la variable en tres grupos: `Jovenes`, `Media` y `Vejez`, de 0 a 45, de 45 a 60 y 60 a 80
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Calculamos los cuantiles
+# Introducimos las franjas
 age_breaks <- c(0, 45, 60, 80)
 
 # Discretizamos la variable age en grupos
@@ -352,7 +352,7 @@ heartAttack$age_discretized <-
 Visualizamos el mínimo y máximo valor para age de cada grupo. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Obtenemos el máximo y mínimo de la variable "age_discretized" en el conjunto de datos "heartAttack"
+# Obtenemos el máximo y mínimo de la variable "age_discretized".
 max_min_age <- tapply(heartAttack$age, heartAttack$age_discretized, range)
 
 # Obtenemos el máximo y mínimo para el grupo "jovenes"
@@ -382,7 +382,7 @@ group_names <- unique(heartAttack$age_discretized)
 par(mfrow = c(length(group_names), 1)) 
 
 par(mfrow = c(2, 2))
-#Imprimimos los graficos
+#Imprimimos los gráficos
 for (i in 1:length(group_names)) {
   group <- group_names[i]
   group_data <- subset(heartAttack, age_discretized == group)
@@ -422,7 +422,7 @@ for (group in group_names) {
 
 Observamos como se cumple lo que hemos visualizado en los gráficos Q-Q y para el grupo edad media, `trtbps` no presenta una distribución normal. Por lo que, descartamos el test de ANOVA y aplicaremos Kruskal-Wallis que no asume una distribución normal en los datos. 
 
-No es necesario comprobar la homogeneidad de los datos ya que al no cumplir el criterio de normalidad, aplicaremos un test no parámetrico.
+No es necesario comprobar la homogeneidad de los datos ya que, al no cumplir el criterio de normalidad, aplicaremos un test no paramétrico.
 
 **output vs variables**: Aproximaremos la relación de dependencia entre la variable dependiente output y el resto de variables. En este caso, no es necesario que las variables presenten una distribución normal, ya que emplearemos la regresión logística, y estos supuestos no son requisitos para el modelo.
 
@@ -459,12 +459,12 @@ El resultado de p-value superior a 0.05 indica que **no se encuentran diferencia
 
 ### KRUSKAL-WALLIS
 
-Para comparar la variable **trtbps** entre los grupos de edad **Jovenes, Media y Vejez**, y como sabemos que no se cumple en supuesto de normalidad de los datos en cada grupo, aplicaremos Kruskal_Wallis. 
+Para comparar la variable **trtbps** entre los grupos de edad **Jóvenes, Media y Vejez**, y como sabemos que no se cumple en supuesto de normalidad de los datos en cada grupo, aplicaremos Kruskal_Wallis. 
 
-Nuestra hipótesis son:
+Nuestras hipótesis son:
 
-+ Hipotesis nula (HO): No hay diferencias significativas de la media del valor trtbps entre los diferentes grupos de edad. 
-+ Hipotesis alternativa (H1): Hay diferencias significativas de la media del valor trtbps entre los diferentes grupos de edad.
++ Hipótesis nula (HO): No hay diferencias significativas de la media del valor trtbps entre los diferentes grupos de edad. 
++ Hipótesis alternativa (H1): Hay diferencias significativas de la media del valor trtbps entre los diferentes grupos de edad.
 
 Realizamos el test de Kruskal-Wallis para la presión arterial y los diferentes grupos de edad:
 
@@ -472,7 +472,7 @@ Realizamos el test de Kruskal-Wallis para la presión arterial y los diferentes 
 kruskal_trtbps <- kruskal.test(trtbps~age_discretized, data=heartAttack)
 kruskal_trtbps
 ```
-Los valores de p obtenidos, son inferiores a 0.05, por lo que podemos rechazar la hipotesis nula y concluir que **el valor de presión sanguínea varia en función del grupo de edad** de las observaciones.
+Los valores de p obtenidos, son inferiores a 0.05, por lo que podemos rechazar la hipótesis nula y concluir que **el valor de presión sanguínea varia en función del grupo de edad** de las observaciones.
 
 ### REGRESIÓN LOGISTICA
 
@@ -537,9 +537,9 @@ ggplot(data = infarto_porcentaje, aes(x = cp, y = percentage, color = sex, group
   scale_color_discrete(labels = etiquetas_sex)
 ```
 
-Observamos como, para ambos sexos se experimentan, en orden de mayor a menor, Dolor no anginal, Angina atípica, Angina típica y Asintomático. Los porcentajes entre sexos varían, hayandose la mayor diferencia entre sexos en en Dolor no Anginal, donde las mujeres lo experimentan en mas 10% por encima de los hombres.
+Observamos como, para ambos sexos se experimentan, en orden de mayor a menor, Dolor no anginal, Angina atípica, Angina típica y Asintomático. Los porcentajes entre sexos varían, hayándose la mayor diferencia entre sexos en Dolor no Anginal, donde las mujeres lo experimentan en mas 10% por encima de los hombres.
 
-El test Chi-cuadrado no ha evaluado si existe una diferencia significativa entre estas dos variables categóricas, y para ello evalúa la diferencia entre las frecuencias observada y las frecuencias esperadas, en el supuesto nulo de independencia. Ahora vamos a gráficas los valores observados y los esperados. 
+El test Chi-cuadrado ha evaluado si existe una diferencia significativa entre estas dos variables categóricas, y para ello evalúa la diferencia entre las frecuencias observada y las frecuencias esperadas, en el supuesto nulo de independencia. Ahora vamos a gráficas los valores observados y los esperados. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 #  Obtenemos los valores observados y esperados del test chi-cuadrado
@@ -618,7 +618,7 @@ text(valor_critico, 0.11, paste("Valor crítico:", round(valor_critico, 2)),
      pos = 2, col = "blue")
 ```
 
-El valor crítico marcado para los grados de libertad de nuestros datos indican el nivel a partir del cual se considera que los resultados son estadísticamenete significativos. En este caso observamos como el valor observado es inferior al valor crítico, por lo tanto los resultados del test son no significativos.
+El valor crítico marcado para los grados de libertad de nuestros datos indican el nivel a partir del cual se considera que los resultados son estadísticamente significativos. En este caso observamos como el valor observado es inferior al valor crítico, por lo que, los resultados del test son no significativos.
 
 ### TRTBPS
 
@@ -635,7 +635,7 @@ ggplot(heartAttack_filtered, aes(x = trtbps, fill = age_discretized)) +
   ggtitle("Histograma de trtbps por Grupo de Edad") +
   theme_minimal()
 ```
-Se observa que el patron entre los jovenes y el grupo de edad media es similar y el de vejez es diferente a ambos. 
+Se observa que el patrón entre los jóvenes y el grupo de edad media es similar y el de vejez es diferente a ambos. 
 
 A continuación realizaremos el boxplot de cada grupo, ya que esta visualización es la que nos permitirá identificar claramente si existen diferencias entre la mediana de los grupos.
 
@@ -649,7 +649,7 @@ ggplot(heartAttack, aes(x = age_discretized, y = trtbps, fill = age_discretized)
   theme_minimal()
 ```
 
-Observamos que existen diferencias de la media de trtbps para cada grupo de edad. Ademas, para vejez, observamos una caja mas ensanchada, lo que significa que la variabilidad de los datos es mayor en ese grupo. 
+Observamos que existen diferencias de la media de trtbps para cada grupo de edad. Además, para vejez, observamos una caja más ensanchada, lo que significa que la variabilidad de los datos es mayor en ese grupo. 
 
 Calculamos la media para cada grupo y la mostramos:
 
@@ -662,7 +662,7 @@ print(means)
 
 ```
 
-Estos resultados concuerdan con el test de Kruskall-Wallis donde se concluia que el valor de estas variables variaba en función del grupo de edad.
+Estos resultados concuerdan con el test de Kruskall-Wallis donde se concluía que el valor de estas variables variaba en función del grupo de edad.
 
 ### REGRESIÓN LOGÍSTICA
 
@@ -672,7 +672,7 @@ A partir del modelo obtenido en el apartado anterior predeciremos la variable ou
 #Predecimos
 predicted <- predict(model_2, newdata = test, type = "response") > 0.5
 
-#realizamos la matriz de confusion
+#Realizamos la matriz de confusión
 confusion_matrix <- table(predicted, test$output)
 
 # Normalizamos la matriz de confusión
@@ -682,7 +682,7 @@ normalized_confusion_matrix <- prop.table(confusion_matrix, margin = 1)
 print(normalized_confusion_matrix)
 ```
 
-Por ultimo, calcularemos la curva ROC y evaluamos el modelo con el coeficiente AUC, que indica el valor del área bajo la curva. 
+Por último, calcularemos la curva ROC y evaluamos el modelo con el coeficiente AUC, que indica el valor del área bajo la curva. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Obtener las probabilidades predichas por el modelo
