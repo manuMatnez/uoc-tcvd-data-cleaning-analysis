@@ -323,7 +323,7 @@ Realmente de 303 registros a 279 no hay mucha diferencia así que se mantiene la
 Deseamos conocer la relación que existe entre las siguientes variables: 
 
 + **sex**, **cp**: Queremos conocer si existen diferencias significativas entre el tipo de dolor en el pecho que experimentan las observaciones con infarto en función del sexo. 
-+ **age**:Queremos conocer si la media de las variables numéricas **trtbps, chol**  son las mismas para los grupos de datos **age** tras realizar una discretización de esta variable. 
++ **age**, **trtbps** :Queremos conocer si la media de la variable numérica **trtbps** es la misma para los grupos de datos **age** tras realizar una discretización de esta variable. 
 + **output vs variables**: Queremos aproximar la relación de dependencia que existe entre la probabilidad de sufrir un infarto y las variables del dataset. 
 
 ## 4.2. Comprobación de la normalidad y homogeneidad de la varianza
@@ -380,14 +380,14 @@ cat("Medio -", "Mínimo:", min_medio,"Máximo:", max_medio, "\n")
 cat("Vejez -", "Mínimo:", min_vejez,"Máximo:", max_vejez, "\n")
 ```
 
-Ahora comprobamos si las variables `trtbps`, `chol` presentan una distribución normal de manera visual, a través del gráfico Q-Q:
+Ahora comprobamos si la variable `trtbps`, presenta una distribución normal de manera visual, a través del gráfico Q-Q:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 #Seleccionamos los grupos
 group_names <- unique(heartAttack$age_discretized)
 
 #Configuramos la ventana
-par(mfrow = c(length(group_names), 2)) 
+par(mfrow = c(length(group_names), 1)) 
 
 #Imprimimos los graficos
 for (i in 1:length(group_names)) {
@@ -397,14 +397,11 @@ for (i in 1:length(group_names)) {
   # Gráfico Q-Q para trtbps
   qqnorm(group_data$trtbps, main = paste("Grupo:", group, "- Variable: trtbps"))
   qqline(group_data$trtbps, col = "#FC4E07")
-  
-  # Gráfico Q-Q para chol
-  qqnorm(group_data$chol, main = paste("Grupo:", group, "- Variable: chol"))
-  qqline(group_data$chol, col = "#FC4E07")
+ 
 }
 ```
 
-De manera visual, parece que la variable `colesterol` en el grupo Vejez, se aleja de la recta normal en la parte derecha el gráfico. Lo mismo se observa para la variable `trtbps` en el grupo de edad Media.
+De manera visual, parece que la variable `trtbps` se aleja de la recta normal en la parte derecha el gráfico en el grupo edad Media.
 
 Ahora realizaremos una evaluación más cuantitativa de la distribución, mediante el test Shapiro-Wilk con `shapiro.test()`:
 
@@ -415,18 +412,11 @@ group_names <- unique(heartAttack$age_discretized)
 for (group in group_names) {
   group_data <- subset(heartAttack, age_discretized == group)
   
-  shapiro_test_chol <- shapiro.test(group_data$chol)
+
   shapiro_test_trtbps <- shapiro.test(group_data$trtbps)
   
   cat("Grupo:", group, "\n")
-  cat("El p-value de chol es:", shapiro_test_chol$p.value, "\n")
   cat("El p-value de trtbps es:", shapiro_test_trtbps$p.value, "\n")
- 
-  if (shapiro_test_chol$p.value >= 0.05) {
-    cat("La variable 'colesterol' en el grupo", group, "sigue una distribución normal.\n")
-  } else {
-    cat("La variable 'colesterol' en el grupo", group, "no sigue una distribución normal.\n")
-  }
   
    if (shapiro_test_trtbps$p.value >= 0.05) {
     cat("La variable 'trtbps' en el grupo", group, "sigue una distribución normal.\n")
@@ -437,7 +427,7 @@ for (group in group_names) {
 }
 ```
 
-Observamos como se cumple lo que hemos visualizado en los gráficos Q-Q y para los grupos vejez y media, la variable `chol` y `trtbps` no presentan una distribución normal. Por lo que, descartamos el test de ANOVA y aplicaremos Kruskal-Wallis que no asume una distribución normal en los datos. 
+Observamos como se cumple lo que hemos visualizado en los gráficos Q-Q y para el grupo edad media, `trtbps` no presenta una distribución normal. Por lo que, descartamos el test de ANOVA y aplicaremos Kruskal-Wallis que no asume una distribución normal en los datos. 
 
 No es necesario comprobar la homogeneidad de los datos ya que al no cumplir el criterio de normalidad, aplicaremos un test no parámetrico.
 
@@ -476,12 +466,12 @@ El resultado de p-value superior a 0.05 indica que **no se encuentran diferencia
 
 ### KRUSKAL-WALLIS
 
-Para comparar las variables **trtbps** y **chol** entre los grupos de edad **Jovenes, Media y Vejez**, y como sabemos que no se cumple en supuesto de normalidad de los datos en cada grupo, aplicaremos Kruskal_Wallis. 
+Para comparar la variable **trtbps** entre los grupos de edad **Jovenes, Media y Vejez**, y como sabemos que no se cumple en supuesto de normalidad de los datos en cada grupo, aplicaremos Kruskal_Wallis. 
 
 Nuestra hipótesis son:
 
-+ Hipotesis nula (HO): No hay diferencias significativas de la media del valor trtbps y chol entre los diferentes grupos de edad. 
-+ Hipotesis alternativa (H1): Hay diferencias significativas de la media del valor trtbps y chol entre los diferentes grupos de edad.
++ Hipotesis nula (HO): No hay diferencias significativas de la media del valor trtbps entre los diferentes grupos de edad. 
++ Hipotesis alternativa (H1): Hay diferencias significativas de la media del valor trtbps entre los diferentes grupos de edad.
 
 Realizamos el test de Kruskal-Wallis para la presión arterial y los diferentes grupos de edad:
 
@@ -489,13 +479,7 @@ Realizamos el test de Kruskal-Wallis para la presión arterial y los diferentes 
 kruskal_trtbps <- kruskal.test(trtbps~age_discretized, data=heartAttack)
 kruskal_trtbps
 ```
-Realizamos el test de Kruskal-Wallis para el colesterol y los diferentes grupos de edad:
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-kruskal_chol <- kruskal.test(chol~age_discretized, data=heartAttack)
-kruskal_chol
-```
-Los valores de p obtenidos en ambos test, son inferiores a 0.05, por lo que podemos rechazar la hipotesis nula y concluir que **el valor de colesterol y presión sanguínea varia en función del grupo de edad** de las observaciones.
+Los valores de p obtenidos, son inferiores a 0.05, por lo que podemos rechazar la hipotesis nula y concluir que **el valor de presión sanguínea varia en función del grupo de edad** de las observaciones.
 
 ### REGRESIÓN LOGISTICA
 
@@ -641,25 +625,11 @@ text(valor_critico, 0.11, paste("Valor crítico:", round(valor_critico, 2)),
 
 El valor crítico marcado para los grados de libertad de nuestros datos indican el nivel a partir del cual se considera que los resultados son estadísticamenete significativos. En este caso observamos como el valor observado es inferior al valor crítico, por lo tanto los resultados del test son no significativos.
 
-### CHOL y TRTBPS
+### TRTBPS
 
-Para comparar estas dos variables hemos empleado Kruskal-Wallis, que afirma que las medianas de los datos en los diferentes grupos son iguales. Por lo que, el primer paso será visualizar la distribución de nuestros datos en cada uno de nuestros grupos. 
+Para compara los valores de esta variable en los grupos de edad, hemos empleado Kruskal-Wallis, que afirma que las medianas de los datos en los diferentes grupos son iguales. Por lo que, el primer paso será visualizar la distribución de nuestros datos en cada uno de nuestros grupos. 
 
-Generamos el histograma de la variable chol en cada grupo de edad:
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-heartAttack_filtered <- heartAttack[, c("chol", "age_discretized")]
-
-ggplot(heartAttack_filtered, aes(x = chol, fill = age_discretized)) +
-  geom_histogram(binwidth = 10, position = "stack", colour='black') +
-  labs(x = "chol", y = "Frecuencia") +
-  ggtitle("Histograma de chol por Grupo de Edad") +
-  theme_minimal()
-```
-
-Observamos que para media y jóvenes la distribución es similar, pero para vejez parece otro patrón. 
-
-Realizamos el mismo paso para la variable `trtbps`:
+Generamos el histograma de la variable `trtbps` en cada grupo de edad:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 heartAttack_filtered <- heartAttack[, c("trtbps", "age_discretized")]
@@ -670,31 +640,10 @@ ggplot(heartAttack_filtered, aes(x = trtbps, fill = age_discretized)) +
   ggtitle("Histograma de trtbps por Grupo de Edad") +
   theme_minimal()
 ```
-
-Los resultados son similares a los obtenidos con la variable chol, donde parece que el patron entre Jovenes y Media es similar y el de vejez es diferente a ambos. 
+Se observa que el patron entre los jovenes y el grupo de edad media es similar y el de vejez es diferente a ambos. 
 
 A continuación realizaremos el boxplot de cada grupo, ya que esta visualización es la que nos permitirá identificar claramente si existen diferencias entre la mediana de los grupos.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Crear el gráfico de cajas
-ggplot(heartAttack, aes(x = age_discretized, y = chol, fill = age_discretized)) +
-  geom_boxplot(color = "black") +
-  labs(x = "Grupo de Edad", y = "chol") +
-  ggtitle("Distribución de chol por Grupo de Edad") +
-  theme_minimal()
-```
-
-Para la variable chol observamos que existen diferencias en su media para cada grupo. Visualizamos este valor para cada grupo:
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Calcular la media por grupo
-means <- tapply(heartAttack$chol, heartAttack$age_discretized, mean)
-
-# Mostrar las medias por grupo
-print(means)
-```
-
-Realizamos el boxplot para la variable trtbps:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Crear el gráfico de cajas
@@ -705,7 +654,7 @@ ggplot(heartAttack, aes(x = age_discretized, y = trtbps, fill = age_discretized)
   theme_minimal()
 ```
 
-Observamos que se cumple el mismo patrón que en el caso anterior, y para vejez, ademas, observamos una caja mas ensanchada, lo que significa que la variabilidad de los datos es mayor en ese grupo. 
+Observamos que existen diferencias de la media de trtbps para cada grupo de edad. Ademas, para vejez, observamos una caja mas ensanchada, lo que significa que la variabilidad de los datos es mayor en ese grupo. 
 
 Calculamos la media para cada grupo y la mostramos:
 
@@ -779,7 +728,7 @@ La ecuación del modelo ajustado es logit(p) = 1.2937 + 1.7425 * cp1 + 2.5354 * 
 
 # 6. Resolución del problema
 
-Los resultados obtenidos son concluyentes y brindan respuestas satisfactorias a las preguntas planteadas. Nuestro modelo logístico ha demostrado ser efectivo al predecir la probabilidad de sufrir un ataque al corazón. Al explorar los datos, hemos descubierto correlaciones y diferencias significativas entre diferentes grupos de pacientes. Por ejemplo, no se encontraron diferencias significativas en cuanto al tipo de dolor en el pecho y el sexo dentro de la población que sufre un infarto. Esto sugiere que estas variables no tienen un impacto significativo en la probabilidad de padecer un ataque al corazón en la muestra analizada. Sin embargo, hemos observado que los niveles de colesterol y presión sanguínea varían en función de la edad, lo que indica una relación entre la edad de los pacientes y estos factores. Estos hallazgos sugieren que la edad puede ser un factor influyente en el riesgo de sufrir un infarto. Por último, nuestro modelo de regresión logística ha demostrado un buen rendimiento en la clasificación de los datos, con una precisión de alrededor del 80%.
+Los resultados obtenidos son concluyentes y brindan respuestas satisfactorias a las preguntas planteadas. Nuestro modelo logístico ha demostrado ser efectivo al predecir la probabilidad de sufrir un ataque al corazón. Al explorar los datos, hemos descubierto correlaciones y diferencias significativas entre diferentes grupos de pacientes. Por ejemplo, no se encontraron diferencias significativas en cuanto al tipo de dolor en el pecho y el sexo dentro de la población que sufre un infarto. Esto sugiere que estas variables no tienen un impacto significativo en la probabilidad de padecer un ataque al corazón en la muestra analizada. Sin embargo, hemos observado que los niveles de presión sanguínea varían en función de la edad, lo que indica una relación entre la edad de los pacientes y este factor. Estos hallazgos sugieren que la edad puede ser un factor influyente en el riesgo de sufrir un infarto. Por último, nuestro modelo de regresión logística ha demostrado un buen rendimiento en la clasificación de los datos, con una precisión de alrededor del 80%.
 
 # 7. Código
 
