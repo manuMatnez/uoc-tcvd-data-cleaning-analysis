@@ -91,7 +91,7 @@ Las variables que tiene el dataset son: `r toString(heartAttack.var_names)`. Sie
 
 ## Análisis inicial {.unlisted .unnumbered}
 
-Verificamos la estructura del juego de datos principal y el tipo de datos con los que R ha interpretado cada variable, y si, corresponde a la descripción de las variables del fichero original:
+Verificamos la estructura del juego de datos principal y el tipo de datos con los que R ha interpretado cada variable, y si, corresponde a la descripción de las variables del fichero original (podemos usar `str()` o `glimpse()`):
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 str(heartAttack)
@@ -99,13 +99,7 @@ str(heartAttack)
 
 Observamos que todas las variables se han cargado como númerica discreta a excepción de **oldpeak** que se ha cargado como numérica continua. 
 
-A continuación realizaremos una visión general del dataset con `glimpse()`.
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-glimpse(heartAttack)
-```
-
-Y una visión en general con gráficas de los valores de las variables numéricas para determinar la cantidad de valores que pueden tener, esto nos ayuda también a confirmar cuales son numéricas continuas o cuales son numéricas discretas
+A continuación mostraremos una visión en general con gráficas de los valores de las variables numéricas para determinar la cantidad de valores que pueden tener, esto nos ayuda también a confirmar cuales son numéricas continuas o cuales son numéricas discretas
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 heartAttack %>%
@@ -195,19 +189,16 @@ Puesto que `fbs` no es una variable significativa se va a evitar su uso.
 
 # 3. Limpieza de los datos
 
-Volvemos a comprobar la estructura de los datos con `str()`, para verificar que los cambios realizados anteriormente se han ejecutado correctamente.
+Volvemos a comprobar la estructura de los datos con `str()`, para verificar que los cambios realizados anteriormente se han ejecutado correctamente. Además mostraremos el resumen general de cada una de las variables con sus valores máximos, mínimos media, mean y cuartiles utilizando la función `summary()`. Es aquí donde en los casos numéricos se pueden ver si hay valores imposibles de cumplir tanto en máximos como en mínimos.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 str(heartAttack)
 ```
 
-Como se puede observar las variables categóricas ya están en tipo factor.
-
-Y ahora se va a ver un resumen general de cada una de las variables con sus valores máximos, mínimos media, mean y cuartiles utilizando la función `summary()`. Es aquí donde en los casos numéricos se pueden ver si hay valores imposibles de cumplir tanto en máximos como en mínimos.
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 summary(heartAttack)
 ```
+Como se puede observar las variables categóricas ya están en tipo factor.
 
 De la variable `caa` se tenían identificados valores de 0 a 3, **pero el valor máximos es 4**.
 
@@ -323,7 +314,7 @@ Realmente de 303 registros a 279 no hay mucha diferencia así que se mantiene la
 Deseamos conocer la relación que existe entre las siguientes variables: 
 
 + **sex**, **cp**: Queremos conocer si existen diferencias significativas entre el tipo de dolor en el pecho que experimentan las observaciones con infarto en función del sexo. 
-+ **age**, **trtbps** :Queremos conocer si la media de la variable numérica **trtbps** es la misma para los grupos de datos **age** tras realizar una discretización de esta variable. 
++ **age**, **trtbps** : Queremos conocer si la media de la variable numérica **trtbps** es la misma para los grupos de datos **age** tras realizar una discretización de esta variable. 
 + **output vs variables**: Queremos aproximar la relación de dependencia que existe entre la probabilidad de sufrir un infarto y las variables del dataset. 
 
 ## 4.2. Comprobación de la normalidad y homogeneidad de la varianza
@@ -389,6 +380,7 @@ group_names <- unique(heartAttack$age_discretized)
 #Configuramos la ventana
 par(mfrow = c(length(group_names), 1)) 
 
+par(mfrow = c(2, 2))
 #Imprimimos los graficos
 for (i in 1:length(group_names)) {
   group <- group_names[i]
